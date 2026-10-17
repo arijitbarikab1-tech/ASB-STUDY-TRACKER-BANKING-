@@ -7,8 +7,9 @@
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
     :root {
+      /* Eye-Friendly Night Mode (Default) */
       --bg: #0b1120;
-      --card: #162033;
+      --card: #151f32;
       --card-soft: #1e2d47;
       --text: #f8fafc;
       --text-heading: #e2e8f0;
@@ -20,13 +21,13 @@
       --success: #10b981;
       --danger: #ef4444;
       --warning: #f59e0b;
-      --border: rgba(255, 255, 255, 0.08);
+      --border: rgba(255, 255, 255, 0.09);
       --header-bg: rgba(11, 17, 32, 0.92);
-      --shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
+      --shadow: 0 4px 20px rgba(0, 0, 0, 0.28);
       --radius: 14px;
     }
 
-    /* --- DAY MODE (LIGHT THEME) --- */
+    /* --- EYE-SOOTHING DAY MODE (LIGHT THEME) --- */
     body.light-mode {
       --bg: #f1f5f9;
       --card: #ffffff;
@@ -34,10 +35,10 @@
       --text: #0f172a;
       --text-heading: #1e293b;
       --muted: #64748b;
-      --accent-soft: rgba(99, 102, 241, 0.1);
+      --accent-soft: rgba(99, 102, 241, 0.11);
       --accent-text: #4f46e5;
       --border: rgba(15, 23, 42, 0.1);
-      --header-bg: rgba(255, 255, 255, 0.92);
+      --header-bg: rgba(255, 255, 255, 0.94);
       --shadow: 0 4px 18px rgba(15, 23, 42, 0.06);
     }
 
@@ -66,6 +67,22 @@
     }
     body.light-mode[data-accent="sunset"] { --accent-text: #ea580c; }
 
+    body[data-accent="amethyst"] {
+      --accent: #a855f7;
+      --accent-hover: #9333ea;
+      --accent-soft: rgba(168, 85, 247, 0.14);
+      --accent-text: #c084fc;
+    }
+    body.light-mode[data-accent="amethyst"] { --accent-text: #7e22ce; }
+
+    body[data-accent="teal"] {
+      --accent: #14b8a6;
+      --accent-hover: #0d9488;
+      --accent-soft: rgba(20, 184, 166, 0.14);
+      --accent-text: #2dd4bf;
+    }
+    body.light-mode[data-accent="teal"] { --accent-text: #0f766e; }
+
     * {
       box-sizing: border-box;
       margin: 0;
@@ -87,7 +104,7 @@
       position: sticky;
       top: 0;
       z-index: 100;
-      height: 54px;
+      height: 56px;
       background: var(--header-bg);
       backdrop-filter: blur(12px);
       border-bottom: 1px solid var(--border);
@@ -101,19 +118,19 @@
     .brand-user-wrap {
       display: flex;
       align-items: center;
-      gap: 6px;
+      gap: 7px;
       min-width: 0;
     }
 
     .asb-logo {
-      width: 32px;
-      height: 32px;
+      width: 34px;
+      height: 34px;
       border-radius: 50%;
       flex-shrink: 0;
-      border: 1px solid var(--border);
-      background: #fff;
-      padding: 2px;
+      background: #ffffff;
       cursor: pointer;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+      display: block;
     }
 
     .user-chip {
@@ -122,10 +139,14 @@
       gap: 6px;
       background: var(--card);
       border: 1px solid var(--border);
-      padding: 5px 9px;
+      padding: 5px 10px;
       border-radius: 20px;
-      max-width: 135px;
+      max-width: 145px;
       cursor: pointer;
+    }
+
+    .user-chip:hover {
+      border-color: var(--accent);
     }
 
     .sync-dot {
@@ -217,6 +238,82 @@
       flex-shrink: 0;
     }
 
+    .icon-btn:hover, .menu-btn:hover {
+      border-color: var(--accent);
+    }
+
+    /* --- PREMIUM AUTH MODAL (CREATE ACCOUNT / LOGIN) --- */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.72);
+      backdrop-filter: blur(5px);
+      z-index: 300;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+    }
+
+    .modal-overlay.open {
+      display: flex;
+    }
+
+    .auth-modal {
+      width: 100%;
+      max-width: 400px;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 20px;
+      box-shadow: 0 12px 40px rgba(0, 0, 0, 0.45);
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .auth-tabs {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      background: var(--bg);
+      padding: 4px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      gap: 4px;
+    }
+
+    .auth-tab {
+      padding: 8px 10px;
+      border: none;
+      background: transparent;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 700;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+
+    .auth-tab.active {
+      background: var(--accent);
+      color: #ffffff;
+    }
+
+    .pass-wrap {
+      position: relative;
+      display: flex;
+      align-items: center;
+    }
+
+    .pass-toggle {
+      position: absolute;
+      right: 10px;
+      background: none;
+      border: none;
+      color: var(--muted);
+      cursor: pointer;
+      font-size: 13px;
+    }
+
     /* --- THREE-BAR (☰) SETTINGS & SYNC DRAWER --- */
     .drawer-overlay {
       position: fixed;
@@ -233,8 +330,8 @@
     }
 
     .drawer {
-      width: 340px;
-      max-width: 90vw;
+      width: 350px;
+      max-width: 92vw;
       background: var(--card);
       height: 100%;
       padding: 16px;
@@ -394,7 +491,7 @@
       margin-bottom: 4px;
     }
 
-    select, input[type="text"], input[type="password"], input[type="number"], input[type="date"] {
+    select, input[type="text"], input[type="email"], input[type="password"], input[type="number"], input[type="date"] {
       width: 100%;
       background: var(--bg);
       border: 1px solid var(--border);
@@ -484,7 +581,7 @@
       align-items: center;
       justify-content: center;
       gap: 4px;
-      transition: transform 0.1s;
+      transition: transform 0.1s, opacity 0.15s;
     }
 
     .btn:active {
@@ -505,7 +602,7 @@
 
     /* --- SCROLLABLE LISTS --- */
     .list-scroll {
-      max-height: 240px;
+      max-height: 245px;
       overflow-y: auto;
       display: flex;
       flex-direction: column;
@@ -676,19 +773,20 @@
     /* --- COLOR SWATCHES IN DRAWER --- */
     .swatch-row {
       display: flex;
-      gap: 8px;
+      gap: 7px;
       align-items: center;
+      flex-wrap: wrap;
     }
     .color-swatch {
-      width: 28px;
-      height: 28px;
+      width: 26px;
+      height: 26px;
       border-radius: 50%;
       cursor: pointer;
       border: 2px solid transparent;
     }
     .color-swatch.active {
       border-color: var(--text);
-      transform: scale(1.1);
+      transform: scale(1.12);
     }
 
     /* --- BOTTOM MOBILE NAVIGATION --- */
@@ -727,19 +825,41 @@
 </head>
 <body>
 
-  <!-- COMPACT TOP HEADER: ASB Logo + User Email + Date Nav + Day/Night Mode + ☰ Menu -->
+  <!-- COMPACT TOP HEADER: Exact ASB Circular Monogram Logo + User Email + Date Nav + Day/Night Mode + ☰ Menu -->
   <header class="app-header">
     <div class="brand-user-wrap">
-      <!-- ASB Monogram SVG Logo (Matches Your Uploaded Image) -->
-      <svg class="asb-logo" viewBox="0 0 100 100" onclick="toggleDrawer(true)" title="ASB Study Tracker">
-        <circle cx="50" cy="50" r="48" fill="#ffffff" stroke="#000000" stroke-width="4"/>
-        <path d="M18 78 L28 24 L36 24 L36 78 M21 56 L35 56" stroke="#000000" stroke-width="8" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
-        <path d="M58 22 L42 22 L42 48 L58 48 L58 78 L42 78" stroke="#000000" stroke-width="8" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
-        <path d="M66 24 L66 76 M66 24 C84 26, 86 48, 66 50 C86 52, 84 74, 66 76" stroke="#000000" stroke-width="8" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+      <!-- Exact Geometric Recreation of the Uploaded ASB Circular Monogram Logo -->
+      <svg class="asb-logo" viewBox="0 0 100 100" onclick="openAuthModal()" title="ASB Pro Banking Study Tracker">
+        <defs>
+          <clipPath id="asbCircleClip">
+            <circle cx="50" cy="50" r="45.5" />
+          </clipPath>
+          <mask id="asbLetterCutouts">
+            <rect x="0" y="0" width="100" height="100" fill="white" />
+            <!-- White Vertical Separators between A | S | B -->
+            <rect x="31" y="0" width="6" height="100" fill="black" />
+            <rect x="63" y="0" width="6" height="100" fill="black" />
+            <!-- 'A' Inner Counter (Top Window) & Bottom Counter -->
+            <path d="M14 48 L14 27 C17 20, 21 17, 23 16 L23 48 Z" fill="black" />
+            <rect x="14" y="57" width="9" height="43" fill="black" />
+            <!-- 'S' Upper Right & Lower Left Cutouts -->
+            <rect x="46" y="13" width="18" height="31" fill="black" />
+            <rect x="36" y="56" width="18" height="31" fill="black" />
+            <!-- 'B' Top & Bottom Inner D-Shaped Counters -->
+            <path d="M77 16 C82 18, 86 24, 86 32 C86 40, 82 44, 77 45 Z" fill="black" />
+            <path d="M77 55 C82 56, 86 60, 86 68 C86 76, 82 82, 77 84 Z" fill="black" />
+          </mask>
+        </defs>
+        <!-- Outer White Circle with Crisp Black Ring -->
+        <circle cx="50" cy="50" r="48" fill="#ffffff" stroke="#000000" stroke-width="2.5" />
+        <!-- Bold Black Monogram Letters A S B Clipped Inside Circle -->
+        <g clip-path="url(#asbCircleClip)" mask="url(#asbLetterCutouts)">
+          <circle cx="50" cy="50" r="45.5" fill="#000000" />
+        </g>
       </svg>
 
-      <!-- User Email ID Pill -->
-      <div class="user-chip" onclick="toggleDrawer(true)" title="Click to Manage Account & Cloud Sync">
+      <!-- User Account Pill (Opens Login / Register Modal) -->
+      <div class="user-chip" onclick="openAuthModal()" title="Click to Login or Create Account">
         <span class="sync-dot" id="headerSyncDot"></span>
         <span class="user-email-text" id="headerUserEmail">Guest (Login)</span>
       </div>
@@ -756,9 +876,76 @@
     <!-- Right Buttons: Day/Night Toggle & ☰ Menu -->
     <div class="header-actions">
       <button class="icon-btn" id="themeToggleBtn" onclick="toggleThemeMode()" title="Switch Day / Night Mode">☀️</button>
-      <button class="menu-btn" onclick="toggleDrawer(true)" title="Settings, Date Picker & Cloud Login">☰</button>
+      <button class="menu-btn" onclick="toggleDrawer(true)" title="Settings, Date Picker & Cloud Sync">☰</button>
     </div>
   </header>
+
+  <!-- PREMIUM ACCOUNT MODAL: 1. LOGIN (SIGN IN) | 2. CREATE ACCOUNT (REGISTER) -->
+  <div class="modal-overlay" id="authModalOverlay" onclick="if(event.target===this) closeAuthModal()">
+    <div class="auth-modal">
+      <div style="display:flex; justify-content:space-between; align-items:center;">
+        <div style="display:flex; align-items:center; gap:8px;">
+          <span style="font-size:18px;">🔐</span>
+          <h3 style="font-size:15px; font-weight:800;">Personal Cloud Account</h3>
+        </div>
+        <button class="btn btn-soft btn-xs" onclick="closeAuthModal()">✕ Close</button>
+      </div>
+
+      <!-- Mode Switch Tabs: Login vs Register -->
+      <div class="auth-tabs">
+        <button class="auth-tab active" id="tabLoginBtn" onclick="switchAuthTab('login')">🔑 Sign In (Login)</button>
+        <button class="auth-tab" id="tabRegisterBtn" onclick="switchAuthTab('register')">✨ Create Account</button>
+      </div>
+
+      <p id="authHelperText" style="font-size:11px; color:var(--muted); line-height:1.4;">
+        Login with your registered Email ID & Password. Your study tasks sync ONLY to your private account across your Mobile & Laptop.
+      </p>
+
+      <!-- Full Name (Visible only in Create Account mode) -->
+      <div id="registerNameWrap" style="display:none;">
+        <label>Your Full Name</label>
+        <input type="text" id="modalUserName" placeholder="e.g. Arijit Barik" />
+      </div>
+
+      <div>
+        <label>Email ID / User ID</label>
+        <input type="email" id="modalEmail" placeholder="e.g. yourname@gmail.com" />
+      </div>
+
+      <div>
+        <label>Password</label>
+        <div class="pass-wrap">
+          <input type="password" id="modalPassword" placeholder="Enter your password" />
+          <button type="button" class="pass-toggle" onclick="togglePassVisibility('modalPassword')">👁️</button>
+        </div>
+      </div>
+
+      <!-- Confirm Password (Visible only in Create Account mode) -->
+      <div id="registerConfirmWrap" style="display:none;">
+        <label>Confirm Password</label>
+        <div class="pass-wrap">
+          <input type="password" id="modalConfirmPassword" placeholder="Re-enter your password" />
+          <button type="button" class="pass-toggle" onclick="togglePassVisibility('modalConfirmPassword')">👁️</button>
+        </div>
+      </div>
+
+      <div id="modalAuthAlert" style="font-size:11px; font-weight:700; display:none; padding:8px 10px; border-radius:8px;"></div>
+
+      <div class="btn-group">
+        <button class="btn btn-primary" style="flex:1; padding:10px;" id="modalSubmitBtn" onclick="handleModalAuthSubmit()">
+          🔑 Login & Sync My Account
+        </button>
+      </div>
+
+      <div id="modalLoggedInActions" style="display:none; border-top:1px solid var(--border); padding-top:10px; justify-content:space-between; align-items:center;">
+        <span style="font-size:11px; color:var(--success); font-weight:700;" id="modalCurrentAccountLabel">Active Account</span>
+        <div class="btn-group">
+          <button class="btn btn-soft btn-xs" onclick="pullFromCloud(true)">⬇️ Force Sync</button>
+          <button class="btn btn-danger btn-xs" onclick="logoutAccount()">Logout</button>
+        </div>
+      </div>
+    </div>
+  </div>
 
   <!-- THREE-BAR (☰) SETTINGS, ACCOUNT SYNC, THEME & DATE DRAWER -->
   <div class="drawer-overlay" id="drawerOverlay" onclick="if(event.target===this) toggleDrawer(false)">
@@ -768,7 +955,7 @@
         <button class="btn btn-soft btn-xs" onclick="toggleDrawer(false)">✕ Close</button>
       </div>
 
-      <!-- NEW: DAY / NIGHT MODE & COLOR TEMPLATE CUSTOMIZER -->
+      <!-- DAY / NIGHT MODE & COLOR TEMPLATE CUSTOMIZER -->
       <div class="drawer-section">
         <span class="drawer-label">🎨 Day / Night Mode & Color Theme</span>
         <div style="display:flex; justify-content:space-between; align-items:center;">
@@ -778,10 +965,12 @@
         <div style="display:flex; justify-content:space-between; align-items:center; margin-top:4px;">
           <span style="font-size:12px; font-weight:600;">Accent Template</span>
           <div class="swatch-row">
-            <div class="color-swatch active" style="background:#6366f1;" onclick="setAccentColor('indigo', this)" title="Indigo"></div>
-            <div class="color-swatch" style="background:#10b981;" onclick="setAccentColor('emerald', this)" title="Emerald"></div>
-            <div class="color-swatch" style="background:#3b82f6;" onclick="setAccentColor('royal', this)" title="Royal Blue"></div>
-            <div class="color-swatch" style="background:#f97316;" onclick="setAccentColor('sunset', this)" title="Sunset Orange"></div>
+            <div class="color-swatch active" data-swatch="indigo" style="background:#6366f1;" onclick="setAccentColor('indigo', this)" title="Indigo"></div>
+            <div class="color-swatch" data-swatch="emerald" style="background:#10b981;" onclick="setAccentColor('emerald', this)" title="Emerald"></div>
+            <div class="color-swatch" data-swatch="royal" style="background:#3b82f6;" onclick="setAccentColor('royal', this)" title="Royal Blue"></div>
+            <div class="color-swatch" data-swatch="sunset" style="background:#f97316;" onclick="setAccentColor('sunset', this)" title="Sunset Orange"></div>
+            <div class="color-swatch" data-swatch="amethyst" style="background:#a855f7;" onclick="setAccentColor('amethyst', this)" title="Amethyst Purple"></div>
+            <div class="color-swatch" data-swatch="teal" style="background:#14b8a6;" onclick="setAccentColor('teal', this)" title="Cyber Teal"></div>
           </div>
         </div>
         <div style="margin-top:4px;">
@@ -790,26 +979,37 @@
         </div>
       </div>
 
-      <!-- 1. USER ID (GMAIL) & PASSWORD CLOUD SYNC (SAME FIRST DATABASE LINK) -->
+      <!-- 1. USER ID (GMAIL) & PASSWORD CLOUD SYNC (REGISTER & LOGIN) -->
       <div class="drawer-section">
-        <span class="drawer-label">🔐 Auto Cloud Sync (Same First Link)</span>
+        <span class="drawer-label">🔐 Personal Account & Auto Cloud Sync</span>
         <p style="font-size:11px; color:var(--muted); line-height:1.35;">
-          Login with the same Email ID and Password on your Mobile and Laptop. Works Offline & Auto-Syncs whenever Online!
+          Each registered account has its own strictly isolated cloud vault. First <b>Create Account</b>, then <b>Login</b> on your Mobile or Laptop!
         </p>
+
+        <div class="auth-tabs" style="margin-bottom:4px;">
+          <button class="auth-tab active" id="drawerTabLogin" onclick="switchDrawerAuthMode('login')">🔑 Login</button>
+          <button class="auth-tab" id="drawerTabRegister" onclick="switchDrawerAuthMode('register')">✨ Create Account</button>
+        </div>
+
         <div>
           <label>User ID / Gmail ID</label>
-          <input type="text" id="loginEmail" placeholder="e.g. yourname@gmail.com" />
+          <input type="email" id="loginEmail" placeholder="e.g. yourname@gmail.com" />
         </div>
         <div>
           <label>Password</label>
-          <input type="password" id="loginPassword" placeholder="Enter your sync password" />
+          <input type="password" id="loginPassword" placeholder="Enter your account password" />
         </div>
+        <div id="drawerConfirmWrap" style="display:none;">
+          <label>Confirm Password</label>
+          <input type="password" id="drawerConfirmPassword" placeholder="Confirm your password" />
+        </div>
+
         <div class="btn-group">
-          <button class="btn btn-primary" style="flex:1;" onclick="loginAndSync()">🔄 Login & Sync</button>
+          <button class="btn btn-primary" id="drawerAuthSubmitBtn" style="flex:1;" onclick="handleDrawerAuth()">🔑 Login & Sync</button>
           <button class="btn btn-soft" onclick="pullFromCloud(true)" title="Fetch latest data from cloud">⬇️ Pull</button>
           <button class="btn btn-danger" onclick="logoutAccount()" title="Logout">Logout</button>
         </div>
-        <div id="syncStatusMsg" style="font-size:11px; color:var(--success); font-weight:600;">Status: Local Mode</div>
+        <div id="syncStatusMsg" style="font-size:11px; color:var(--success); font-weight:600;">Status: Guest Mode (Local Device)</div>
         <div id="networkStatusBadge" style="font-size:10px; color:var(--muted);">Network: Checking...</div>
       </div>
 
@@ -897,7 +1097,7 @@
           </div>
           <div class="form-group" style="margin-bottom:0;">
             <label>3. Class / Lecture Name or Topic</label>
-            <input type="text" id="classNote" placeholder="e.g. Floor Puzzle Lecture #14, Caslet DI Set..." />
+            <input type="text" id="classNote" placeholder="e.g. Floor Puzzle Lecture #14, Caselet DI Set..." />
           </div>
         </div>
 
@@ -907,7 +1107,7 @@
           <input type="text" id="generalNote" placeholder="e.g. Night Sleep, YouTube, Instagram..." />
         </div>
 
-        <!-- Live Stopwatch Timer -->
+        <!-- Live Stopwatch Timer (Background-Safe) -->
         <div class="timer-bar">
           <div>
             <div style="font-size:10px; color:var(--muted); font-weight:700;">LIVE SESSION TIMER</div>
@@ -1112,29 +1312,64 @@
 
     const COLORS = ['#6366f1', '#10b981', '#f59e0b', '#ec4899', '#06b6d4', '#8b5cf6', '#ef4444'];
 
-    // --- STATE & DATABASE (Exact same key 'proBankingTrackerDB_v2' preserved!) ---
-    let db = JSON.parse(localStorage.getItem('proBankingTrackerDB_v2')) || {
-      logs: [],
-      todos: [],
-      customSubcats: [],
-      deletedIds: [],
-      settings: { theme: 'dark', accent: 'indigo', dailyGoalHours: 8 },
-      auth: { email: '', vaultKey: '' },
-      pendingSync: false,
-      updatedAt: Date.now()
-    };
+    // --- STRICT PER-USER ISOLATED STORAGE & SESSION ARCHITECTURE ---
+    const ACTIVE_SESSION_KEY = 'asb_active_session_v3';
+    let currentAuthMode = 'login'; // 'login' | 'register'
+    let drawerAuthMode = 'login';  // 'login' | 'register'
+    let activeTodoLinkedId = null;
 
-    // Ensure backwards compatibility with existing saved data
-    if (!db.settings) db.settings = { theme: 'dark', accent: 'indigo', dailyGoalHours: 8 };
-    if (!db.deletedIds) db.deletedIds = [];
+    function createCleanDB(authObj = { email: '', name: '', vaultKey: '' }) {
+      return {
+        logs: [],
+        todos: [],
+        customSubcats: [],
+        deletedIds: [],
+        settings: { theme: 'dark', accent: 'indigo', dailyGoalHours: 8 },
+        auth: authObj,
+        pendingSync: false,
+        updatedAt: Date.now()
+      };
+    }
+
+    function getUserStorageKey(vaultKey) {
+      return vaultKey ? `proBankingTrackerDB_user_${vaultKey}` : 'proBankingTrackerDB_guest';
+    }
+
+    function loadInitialDatabase() {
+      const savedSession = JSON.parse(localStorage.getItem(ACTIVE_SESSION_KEY) || 'null');
+      if (savedSession && savedSession.vaultKey) {
+        const userSpecificData = JSON.parse(localStorage.getItem(getUserStorageKey(savedSession.vaultKey)) || 'null');
+        if (userSpecificData) {
+          userSpecificData.auth = savedSession;
+          return userSpecificData;
+        }
+      }
+      // Check legacy storage 'proBankingTrackerDB_v2' for seamless migration
+      const legacy = JSON.parse(localStorage.getItem('proBankingTrackerDB_v2') || 'null');
+      if (legacy) {
+        if (!legacy.settings) legacy.settings = { theme: 'dark', accent: 'indigo', dailyGoalHours: 8 };
+        if (!legacy.deletedIds) legacy.deletedIds = [];
+        if (legacy.auth && legacy.auth.vaultKey) {
+          localStorage.setItem(ACTIVE_SESSION_KEY, JSON.stringify(legacy.auth));
+          localStorage.setItem(getUserStorageKey(legacy.auth.vaultKey), JSON.stringify(legacy));
+        }
+        return legacy;
+      }
+      return createCleanDB();
+    }
+
+    let db = loadInitialDatabase();
 
     let activeDate = getLocalISODate(new Date());
     let currentAnalyticsPeriod = 'day';
     let todoFilterMode = 'activeDate';
 
+    // Background-safe Stopwatch Timer variables
     let timerInterval = null;
     let timerSeconds = 0;
     let timerRunning = false;
+    let timerStartTimestamp = null;
+    let timerAccumulatedSecs = 0;
 
     let subCatChartInstance = null;
     let mainCatChartInstance = null;
@@ -1147,7 +1382,14 @@
     function saveDB(pushCloud = true) {
       db.updatedAt = Date.now();
       if (pushCloud) db.pendingSync = true;
+
+      // Save strictly inside the current user's isolated local storage key
+      const storageKey = getUserStorageKey(db.auth?.vaultKey);
+      localStorage.setItem(storageKey, JSON.stringify(db));
+
+      // Also keep legacy key updated only for the active user on their personal device
       localStorage.setItem('proBankingTrackerDB_v2', JSON.stringify(db));
+
       renderAll();
       if (pushCloud && db.auth && db.auth.vaultKey) {
         pushToCloud();
@@ -1172,15 +1414,14 @@
         syncBidirectional();
       }
 
-      // Auto-Sync every 25 seconds when online
+      // Auto-Sync every 20 seconds when online
       setInterval(() => {
         if (navigator.onLine && db.auth && db.auth.vaultKey) {
           syncBidirectional();
         }
-      }, 25000);
+      }, 20000);
     };
 
-    // Listen for Online / Offline events so offline changes sync automatically when back online
     window.addEventListener('online', () => {
       updateNetworkStatusUI();
       if (db.auth && db.auth.vaultKey) {
@@ -1192,10 +1433,15 @@
       updateNetworkStatusUI();
     });
 
-    // Also auto-sync when switching back to the browser tab or unlocking phone
     document.addEventListener('visibilitychange', () => {
-      if (document.visibilityState === 'visible' && navigator.onLine && db.auth && db.auth.vaultKey) {
-        syncBidirectional();
+      if (document.visibilityState === 'visible') {
+        if (timerRunning && timerStartTimestamp) {
+          timerSeconds = timerAccumulatedSecs + Math.floor((Date.now() - timerStartTimestamp) / 1000);
+          document.getElementById('timerDisplay').textContent = formatSecondsHMS(timerSeconds);
+        }
+        if (navigator.onLine && db.auth && db.auth.vaultKey) {
+          syncBidirectional();
+        }
       }
     });
 
@@ -1228,12 +1474,18 @@
     function applyThemeAndAccent() {
       const isLight = db.settings.theme === 'light';
       document.body.classList.toggle('light-mode', isLight);
-      document.body.setAttribute('data-accent', db.settings.accent || 'indigo');
+      const currentAccent = db.settings.accent || 'indigo';
+      document.body.setAttribute('data-accent', currentAccent);
+
+      document.querySelectorAll('.color-swatch').forEach(s => {
+        s.classList.toggle('active', s.getAttribute('data-swatch') === currentAccent);
+      });
 
       const icon = isLight ? '🌙' : '☀️';
       document.getElementById('themeToggleBtn').textContent = icon;
       document.getElementById('bottomThemeIcon').textContent = icon;
       document.getElementById('drawerThemeBtn').textContent = isLight ? '🌙 Switch to Night Mode' : '☀️ Switch to Day Mode';
+      renderAnalytics();
     }
 
     function updateDailyGoal(val) {
@@ -1270,32 +1522,299 @@
       inp.value = '';
     }
 
-    // --- CROSS-DEVICE CLOUD SYNC (EXACT SAME FIRST DATABASE LINK `ntfy.sh`) ---
-    async function generateVaultKey(email, password) {
-      const cleanStr = `${email.toLowerCase().trim()}::${password.trim()}`;
-      const msgBuffer = new TextEncoder().encode(cleanStr);
+    // --- CRYPTOGRAPHIC HASHING FOR STRICT ACCOUNT REGISTRATION & ISOLATED VAULTS ---
+    async function sha256Hex(str) {
+      const msgBuffer = new TextEncoder().encode(str);
       const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
       const hashArray = Array.from(new Uint8Array(hashBuffer));
-      return 'prostudy_vault_' + hashArray.map(b => b.toString(16).padStart(2, '0')).join('').slice(0, 28);
+      return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
     }
 
-    async function loginAndSync() {
-      const email = document.getElementById('loginEmail').value.trim();
-      const pass = document.getElementById('loginPassword').value.trim();
-      if (!email || !pass) {
-        alert('Please enter both your User ID (Email) and Password.');
-        return;
-      }
-      const statusEl = document.getElementById('syncStatusMsg');
-      statusEl.textContent = 'Connecting & syncing with cloud...';
-      statusEl.style.color = '#f59e0b';
+    // Same first-link ntfy.sh vault key generator for 100% compatibility with your existing cloud data
+    async function generateVaultKey(email, password) {
+      const cleanStr = `${email.toLowerCase().trim()}::${password.trim()}`;
+      const hex = await sha256Hex(cleanStr);
+      return 'prostudy_vault_' + hex.slice(0, 28);
+    }
 
+    // Unique per-email registry topic to verify account registration & password
+    async function generateEmailRegistryTopic(email) {
+      const cleanEmail = email.toLowerCase().trim();
+      const hex = await sha256Hex('asb_account_reg_v3::' + cleanEmail);
+      return 'asb_reg_v3_' + hex.slice(0, 26);
+    }
+
+    // --- AUTH MODAL & DRAWER UI CONTROLS ---
+    function openAuthModal() {
+      document.getElementById('authModalOverlay').classList.add('open');
+      if (db.auth && db.auth.email) {
+        document.getElementById('modalEmail').value = db.auth.email;
+        document.getElementById('modalLoggedInActions').style.display = 'flex';
+        document.getElementById('modalCurrentAccountLabel').textContent = `Logged in: ${db.auth.email}`;
+      } else {
+        document.getElementById('modalLoggedInActions').style.display = 'none';
+      }
+    }
+
+    function closeAuthModal() {
+      document.getElementById('authModalOverlay').classList.remove('open');
+      hideModalAlert();
+    }
+
+    function togglePassVisibility(inputId) {
+      const inp = document.getElementById(inputId);
+      inp.type = (inp.type === 'password') ? 'text' : 'password';
+    }
+
+    function switchAuthTab(mode) {
+      currentAuthMode = mode;
+      const isReg = (mode === 'register');
+      document.getElementById('tabLoginBtn').classList.toggle('active', !isReg);
+      document.getElementById('tabRegisterBtn').classList.toggle('active', isReg);
+      document.getElementById('registerNameWrap').style.display = isReg ? 'block' : 'none';
+      document.getElementById('registerConfirmWrap').style.display = isReg ? 'block' : 'none';
+      document.getElementById('modalSubmitBtn').textContent = isReg
+        ? '✨ Create Account (Register)'
+        : '🔑 Login & Sync My Account';
+      document.getElementById('authHelperText').textContent = isReg
+        ? 'Create your personal account first. Once registered, only your Email & Password can access your study tasks.'
+        : 'Login with your registered Email ID & Password. Your study tasks sync ONLY to your private account across your Mobile & Laptop.';
+      hideModalAlert();
+    }
+
+    function switchDrawerAuthMode(mode) {
+      drawerAuthMode = mode;
+      const isReg = (mode === 'register');
+      document.getElementById('drawerTabLogin').classList.toggle('active', !isReg);
+      document.getElementById('drawerTabRegister').classList.toggle('active', isReg);
+      document.getElementById('drawerConfirmWrap').style.display = isReg ? 'block' : 'none';
+      document.getElementById('drawerAuthSubmitBtn').textContent = isReg
+        ? '✨ Create Account'
+        : '🔑 Login & Sync';
+    }
+
+    function showModalAlert(msg, isError = true) {
+      const el = document.getElementById('modalAuthAlert');
+      el.style.display = 'block';
+      el.style.background = isError ? 'rgba(239, 68, 68, 0.15)' : 'rgba(16, 185, 129, 0.15)';
+      el.style.color = isError ? '#ef4444' : '#10b981';
+      el.textContent = msg;
+    }
+
+    function hideModalAlert() {
+      document.getElementById('modalAuthAlert').style.display = 'none';
+    }
+
+    async function handleModalAuthSubmit() {
+      const email = document.getElementById('modalEmail').value.trim().toLowerCase();
+      const pass = document.getElementById('modalPassword').value.trim();
+      const name = document.getElementById('modalUserName').value.trim();
+      const confirmPass = document.getElementById('modalConfirmPassword').value.trim();
+
+      if (currentAuthMode === 'register') {
+        await registerNewAccount(email, pass, confirmPass, name, true);
+      } else {
+        await loginExistingAccount(email, pass, true);
+      }
+    }
+
+    async function handleDrawerAuth() {
+      const email = document.getElementById('loginEmail').value.trim().toLowerCase();
+      const pass = document.getElementById('loginPassword').value.trim();
+      const confirmPass = document.getElementById('drawerConfirmPassword').value.trim();
+
+      if (drawerAuthMode === 'register') {
+        await registerNewAccount(email, pass, confirmPass, '', false);
+      } else {
+        await loginExistingAccount(email, pass, false);
+      }
+    }
+
+    // --- CHECK CLOUD REGISTRATION RECORD ON NTFY.SH ---
+    async function fetchCloudRegistrationRecord(email) {
+      const regTopic = await generateEmailRegistryTopic(email);
+      const localRegCache = JSON.parse(localStorage.getItem('asb_local_reg_' + regTopic) || 'null');
+      if (!navigator.onLine) return localRegCache;
+
+      try {
+        const res = await fetch(`https://ntfy.sh/${regTopic}/json?poll=1&since=all`);
+        const text = await res.text();
+        const lines = text.trim().split('\n').filter(Boolean);
+        let record = null;
+        for (const line of lines) {
+          try {
+            const msg = JSON.parse(line);
+            if (msg.event === 'message' && msg.message) {
+              const parsed = JSON.parse(msg.message);
+              if (parsed && parsed.email === email && parsed.passHash) {
+                record = parsed;
+              }
+            }
+          } catch (e) {}
+        }
+        if (record) {
+          localStorage.setItem('asb_local_reg_' + regTopic, JSON.stringify(record));
+        }
+        return record || localRegCache;
+      } catch (e) {
+        return localRegCache;
+      }
+    }
+
+    // --- 1. CREATE ACCOUNT (REGISTER NEW USER) ---
+    async function registerNewAccount(email, pass, confirmPass, name = '', fromModal = false) {
+      if (!email || !email.includes('@')) {
+        const msg = 'Please enter a valid Email ID (e.g. name@gmail.com).';
+        return fromModal ? showModalAlert(msg, true) : alert(msg);
+      }
+      if (!pass || pass.length < 4) {
+        const msg = 'Password must be at least 4 characters long.';
+        return fromModal ? showModalAlert(msg, true) : alert(msg);
+      }
+      if (pass !== confirmPass) {
+        const msg = 'Passwords do not match! Please re-enter carefully.';
+        return fromModal ? showModalAlert(msg, true) : alert(msg);
+      }
+
+      const statusEl = document.getElementById('syncStatusMsg');
+      statusEl.textContent = 'Checking & Registering your account...';
+      statusEl.style.color = '#f59e0b';
+      if (fromModal) showModalAlert('Creating your private cloud account...', false);
+
+      const existingReg = await fetchCloudRegistrationRecord(email);
+      if (existingReg) {
+        const msg = 'An account with this Email ID is already registered! Please switch to Sign In (Login).';
+        statusEl.textContent = 'Account already exists. Please Login.';
+        return fromModal ? showModalAlert(msg, true) : alert(msg);
+      }
+
+      const passHash = await sha256Hex(`${email}::${pass}`);
       const vaultKey = await generateVaultKey(email, pass);
-      db.auth = { email, vaultKey };
+      const regTopic = await generateEmailRegistryTopic(email);
+
+      const regPayload = {
+        email,
+        name: name || email.split('@')[0],
+        passHash,
+        createdAt: Date.now()
+      };
+
+      // Save registration locally & push to cloud registry
+      localStorage.setItem('asb_local_reg_' + regTopic, JSON.stringify(regPayload));
+      if (navigator.onLine) {
+        try {
+          await fetch(`https://ntfy.sh/${regTopic}`, {
+            method: 'POST',
+            body: JSON.stringify(regPayload)
+          });
+        } catch (e) {}
+      }
+
+      // Initialize a completely CLEAN, ISOLATED database for this new user (never mixing previous user's tasks!)
+      const currentSettings = db.settings || { theme: 'dark', accent: 'indigo', dailyGoalHours: 8 };
+      db = createCleanDB({ email, name: regPayload.name, vaultKey });
+      db.settings = { ...currentSettings };
+
+      localStorage.setItem(ACTIVE_SESSION_KEY, JSON.stringify(db.auth));
+      saveDB(true);
       updateAuthUI();
 
-      await pullFromCloud(true);
+      const successMsg = `Account created & logged in as ${email}! Your workspace is 100% private.`;
+      if (fromModal) {
+        showModalAlert(successMsg, false);
+        setTimeout(() => closeAuthModal(), 1100);
+      } else {
+        alert(successMsg);
+      }
+    }
+
+    // --- 2. LOGIN EXISTING ACCOUNT (WITH PASSWORD VERIFICATION & STRICT ISOLATION) ---
+    async function loginExistingAccount(email, pass, fromModal = false) {
+      if (!email || !pass) {
+        const msg = 'Please enter both your registered Email ID and Password.';
+        return fromModal ? showModalAlert(msg, true) : alert(msg);
+      }
+
+      const statusEl = document.getElementById('syncStatusMsg');
+      statusEl.textContent = 'Verifying account credentials...';
+      statusEl.style.color = '#f59e0b';
+      if (fromModal) showModalAlert('Verifying your Email ID & Password with Cloud...', false);
+
+      const passHash = await sha256Hex(`${email}::${pass}`);
+      const vaultKey = await generateVaultKey(email, pass);
+      const regRecord = await fetchCloudRegistrationRecord(email);
+
+      if (regRecord) {
+        // Verify password matches registered account
+        if (regRecord.passHash !== passHash) {
+          const errMsg = 'Incorrect Password for this registered Email ID! Please try again.';
+          statusEl.textContent = 'Login failed: Incorrect Password';
+          statusEl.style.color = '#ef4444';
+          return fromModal ? showModalAlert(errMsg, true) : alert(errMsg);
+        }
+      } else {
+        // Backward compatibility check: See if user already had a vault on the first database link before v3 registration
+        let legacyVaultData = null;
+        if (navigator.onLine) {
+          try {
+            const res = await fetch(`https://ntfy.sh/${vaultKey}/json?poll=1&since=all`);
+            const text = await res.text();
+            const lines = text.trim().split('\n').filter(Boolean);
+            for (const line of lines) {
+              try {
+                const msg = JSON.parse(line);
+                if (msg.event === 'message' && msg.message) {
+                  const parsed = JSON.parse(msg.message);
+                  if (parsed && (parsed.logs || parsed.todos)) {
+                    legacyVaultData = parsed;
+                  }
+                }
+              } catch (e) {}
+            }
+          } catch (e) {}
+        }
+
+        if (!legacyVaultData) {
+          const notFoundMsg = 'Account not registered yet! Please click "Create Account" first to register your Email & Password.';
+          statusEl.textContent = 'Account not found. Please Create Account first.';
+          statusEl.style.color = '#ef4444';
+          return fromModal ? showModalAlert(notFoundMsg, true) : alert(notFoundMsg);
+        } else {
+          // Auto-register existing legacy account so it is protected going forward
+          const regTopic = await generateEmailRegistryTopic(email);
+          const regPayload = { email, name: email.split('@')[0], passHash, createdAt: Date.now() };
+          localStorage.setItem('asb_local_reg_' + regTopic, JSON.stringify(regPayload));
+          if (navigator.onLine) {
+            fetch(`https://ntfy.sh/${regTopic}`, { method: 'POST', body: JSON.stringify(regPayload) }).catch(() => {});
+          }
+        }
+      }
+
+      // Switch workspace strictly to THIS user's isolated database (Never merging another user's tasks!)
+      const savedUserDB = JSON.parse(localStorage.getItem(getUserStorageKey(vaultKey)) || 'null');
+      const currentSettings = db.settings || { theme: 'dark', accent: 'indigo', dailyGoalHours: 8 };
+
+      if (savedUserDB) {
+        db = savedUserDB;
+        db.auth = { email, name: regRecord?.name || email.split('@')[0], vaultKey };
+      } else {
+        db = createCleanDB({ email, name: regRecord?.name || email.split('@')[0], vaultKey });
+        db.settings = { ...currentSettings };
+      }
+
+      localStorage.setItem(ACTIVE_SESSION_KEY, JSON.stringify(db.auth));
+      updateAuthUI();
+      populateSubcatDropdowns();
+      renderAll();
+
+      // Pull only THIS user's private cloud vault
+      await pullFromCloud(false);
       await pushToCloud();
+
+      if (fromModal) {
+        showModalAlert(`Logged in & synced as ${email}!`, false);
+        setTimeout(() => closeAuthModal(), 800);
+      }
     }
 
     async function syncBidirectional() {
@@ -1311,20 +1830,25 @@
       const statusEl = document.getElementById('syncStatusMsg');
       const dotEl = document.getElementById('headerSyncDot');
 
+      const userStorageKey = getUserStorageKey(db.auth.vaultKey);
+
       if (!navigator.onLine) {
         db.pendingSync = true;
-        localStorage.setItem('proBankingTrackerDB_v2', JSON.stringify(db));
-        statusEl.textContent = 'Saved Locally (Will Auto-Sync when Online)';
+        localStorage.setItem(userStorageKey, JSON.stringify(db));
+        statusEl.textContent = 'Saved on Device (Will Auto-Sync when Online)';
         statusEl.style.color = '#f59e0b';
         return;
       }
 
       try {
         dotEl.classList.add('syncing');
+        const ownerEmail = db.auth.email.toLowerCase().trim();
         const payload = JSON.stringify({
-          logs: db.logs,
-          todos: db.todos,
-          customSubcats: db.customSubcats,
+          ownerEmail,
+          vaultKey: db.auth.vaultKey,
+          logs: (db.logs || []).map(l => ({ ...l, ownerEmail })),
+          todos: (db.todos || []).map(t => ({ ...t, ownerEmail })),
+          customSubcats: db.customSubcats || [],
           deletedIds: db.deletedIds || [],
           settings: db.settings,
           updatedAt: db.updatedAt
@@ -1334,6 +1858,7 @@
           body: payload
         });
         db.pendingSync = false;
+        localStorage.setItem(userStorageKey, JSON.stringify(db));
         localStorage.setItem('proBankingTrackerDB_v2', JSON.stringify(db));
         dotEl.classList.remove('syncing');
         dotEl.classList.add('online');
@@ -1351,9 +1876,12 @@
       if (!db.auth || !db.auth.vaultKey || !navigator.onLine) return;
       const statusEl = document.getElementById('syncStatusMsg');
       const dotEl = document.getElementById('headerSyncDot');
+      const currentEmail = db.auth.email.toLowerCase().trim();
+      const currentVaultKey = db.auth.vaultKey;
+
       try {
         dotEl.classList.add('syncing');
-        const res = await fetch(`https://ntfy.sh/${db.auth.vaultKey}/json?poll=1&since=all`);
+        const res = await fetch(`https://ntfy.sh/${currentVaultKey}/json?poll=1&since=all`);
         const text = await res.text();
         const lines = text.trim().split('\n').filter(Boolean);
 
@@ -1363,6 +1891,10 @@
             const msg = JSON.parse(line);
             if (msg.event === 'message' && msg.message) {
               const parsed = JSON.parse(msg.message);
+              // Strict ownership check: reject any payload that belongs to a different email
+              if (parsed.ownerEmail && parsed.ownerEmail.toLowerCase().trim() !== currentEmail) {
+                continue;
+              }
               if (!latestPayload || (parsed.updatedAt && parsed.updatedAt > (latestPayload.updatedAt || 0))) {
                 latestPayload = parsed;
               }
@@ -1376,13 +1908,18 @@
 
           const logMap = new Map();
           [...(latestPayload.logs || []), ...(db.logs || [])].forEach(l => {
-            if (!delSet.has(l.id)) logMap.set(l.id, l);
+            if (l.ownerEmail && l.ownerEmail !== currentEmail) return;
+            if (!delSet.has(l.id)) logMap.set(l.id, { ...l, ownerEmail: currentEmail });
           });
           db.logs = Array.from(logMap.values()).sort((a, b) => b.id - a.id);
 
           const todoMap = new Map();
           [...(latestPayload.todos || []), ...(db.todos || [])].forEach(t => {
-            if (!delSet.has(t.id)) todoMap.set(t.id, t);
+            if (t.ownerEmail && t.ownerEmail !== currentEmail) return;
+            if (!delSet.has(t.id)) {
+              const existing = todoMap.get(t.id);
+              todoMap.set(t.id, existing ? { ...t, done: existing.done || t.done, ownerEmail: currentEmail } : { ...t, ownerEmail: currentEmail });
+            }
           });
           db.todos = Array.from(todoMap.values()).sort((a, b) => b.id - a.id);
 
@@ -1393,9 +1930,9 @@
           saveDB(false);
           statusEl.textContent = `Synced with Cloud (${new Date().toLocaleTimeString()})`;
           statusEl.style.color = '#10b981';
-          if (showAlert) alert('Cloud Sync Successful! Your data is updated across all devices.');
+          if (showAlert) alert('Cloud Sync Successful! Your personal data is updated across your devices.');
         } else {
-          statusEl.textContent = 'Cloud Vault Ready & Active';
+          statusEl.textContent = 'Private Cloud Vault Ready & Active';
           statusEl.style.color = '#10b981';
         }
         dotEl.classList.remove('syncing');
@@ -1408,11 +1945,25 @@
     }
 
     function logoutAccount() {
-      db.auth = { email: '', vaultKey: '' };
+      // Save current user's data in their own vault before logging out
+      if (db.auth && db.auth.vaultKey) {
+        localStorage.setItem(getUserStorageKey(db.auth.vaultKey), JSON.stringify(db));
+      }
+      localStorage.removeItem(ACTIVE_SESSION_KEY);
+
+      // Reset active workspace to a clean Guest session so next user NEVER sees previous user's tasks
+      const currentSettings = db.settings || { theme: 'dark', accent: 'indigo', dailyGoalHours: 8 };
+      db = createCleanDB();
+      db.settings = { ...currentSettings };
+
       document.getElementById('loginEmail').value = '';
       document.getElementById('loginPassword').value = '';
-      saveDB(false);
+      document.getElementById('modalEmail').value = '';
+      document.getElementById('modalPassword').value = '';
+      populateSubcatDropdowns();
       updateAuthUI();
+      renderAll();
+      closeAuthModal();
     }
 
     function updateAuthUI() {
@@ -1425,10 +1976,12 @@
         document.getElementById('loginEmail').value = db.auth.email;
         dotEl.classList.add('online');
         statusEl.textContent = `Logged in as ${db.auth.email}`;
+        statusEl.style.color = '#10b981';
       } else {
         emailEl.textContent = 'Guest (Login)';
         dotEl.classList.remove('online');
-        statusEl.textContent = 'Not logged in (Local Mode)';
+        statusEl.textContent = 'Guest Mode (Click Login or Create Account)';
+        statusEl.style.color = '#94a3b8';
       }
     }
 
@@ -1464,7 +2017,7 @@
       else el.classList.remove('open');
     }
 
-    // --- LOGGER CATEGORY & TIMER ---
+    // --- LOGGER CATEGORY & BACKGROUND-SAFE TIMER ---
     function handleLoggerCategoryChange() {
       const mainCat = document.getElementById('mainCategory').value;
       const isStudy = (mainCat === 'Video Class / Lecture' || mainCat === 'Self Study & Practice');
@@ -1476,13 +2029,16 @@
       const btn = document.getElementById('startPauseBtn');
       if (!timerRunning) {
         timerRunning = true;
+        timerStartTimestamp = Date.now();
         btn.textContent = '⏸ Pause';
         timerInterval = setInterval(() => {
-          timerSeconds++;
+          timerSeconds = timerAccumulatedSecs + Math.floor((Date.now() - timerStartTimestamp) / 1000);
           document.getElementById('timerDisplay').textContent = formatSecondsHMS(timerSeconds);
         }, 1000);
       } else {
         timerRunning = false;
+        timerAccumulatedSecs = timerSeconds;
+        timerStartTimestamp = null;
         btn.textContent = '▶ Resume';
         clearInterval(timerInterval);
       }
@@ -1492,6 +2048,8 @@
       clearInterval(timerInterval);
       timerRunning = false;
       timerSeconds = 0;
+      timerAccumulatedSecs = 0;
+      timerStartTimestamp = null;
       document.getElementById('startPauseBtn').textContent = '▶ Start';
       document.getElementById('timerDisplay').textContent = '00:00:00';
     }
@@ -1531,15 +2089,32 @@
         ? document.getElementById('classNote').value.trim()
         : document.getElementById('generalNote').value.trim();
 
+      const finalNote = note || (isStudy ? 'Study Session' : mainCategory);
+
       db.logs.unshift({
         id: Date.now(),
         date: activeDate,
         mainCategory,
         subCategory,
-        note: note || (isStudy ? 'Study Session' : mainCategory),
+        note: finalNote,
         minutes,
-        isStudy
+        isStudy,
+        ownerEmail: db.auth?.email || ''
       });
+
+      // Smart Auto-Complete: If user started this session from a To-Do task or logged matching note on activeDate, mark it done
+      if (activeTodoLinkedId) {
+        const linked = db.todos.find(t => t.id === activeTodoLinkedId);
+        if (linked) linked.done = true;
+        activeTodoLinkedId = null;
+      } else if (note) {
+        const matchingTodo = db.todos.find(t =>
+          t.date === activeDate &&
+          !t.done &&
+          t.note.toLowerCase().trim() === note.toLowerCase()
+        );
+        if (matchingTodo) matchingTodo.done = true;
+      }
 
       document.getElementById('classNote').value = '';
       document.getElementById('generalNote').value = '';
@@ -1593,7 +2168,8 @@
         subCategory,
         note,
         isStudy,
-        done: false
+        done: false,
+        ownerEmail: db.auth?.email || ''
       });
 
       document.getElementById('todoClassNote').value = '';
@@ -1604,6 +2180,7 @@
     function loadTodoIntoLogger(id) {
       const t = db.todos.find(item => item.id === id);
       if (!t) return;
+      activeTodoLinkedId = t.id;
       document.getElementById('mainCategory').value = t.mainCategory;
       handleLoggerCategoryChange();
       if (t.isStudy) {
@@ -1820,6 +2397,7 @@
       const entries = Object.entries(dataMap);
       const total = entries.reduce((acc, [, v]) => acc + v, 0);
       const barsEl = document.getElementById(barsContainerId);
+      if (!barsEl) return;
 
       barsEl.innerHTML = entries.map(([label, mins], idx) => {
         const pct = total > 0 ? Math.round((mins / total) * 100) : 0;
@@ -1837,7 +2415,9 @@
         `;
       }).join('');
 
-      const ctx = document.getElementById(canvasId).getContext('2d');
+      const canvasEl = document.getElementById(canvasId);
+      if (!canvasEl) return;
+      const ctx = canvasEl.getContext('2d');
       const nonZero = entries.filter(([, v]) => v > 0);
       const chartLabels = nonZero.length ? nonZero.map(([k]) => k) : ['No Logged Data'];
       const chartValues = nonZero.length ? nonZero.map(([, v]) => v) : [1];
@@ -1900,20 +2480,21 @@
       const d0 = getLocalISODate(today);
       const d1 = getLocalISODate(new Date(today.getTime() + 86400000));
       const d2 = getLocalISODate(new Date(today.getTime() - 2 * 86400000));
+      const ownerEmail = db.auth?.email || '';
 
       db.logs = [
-        { id: Date.now() - 100, date: d0, mainCategory: 'Video Class / Lecture', subCategory: 'Reasoning Ability & Puzzle', note: 'Mains Floor & Flat Puzzle Lecture #12', minutes: 110, isStudy: true },
-        { id: Date.now() - 200, date: d0, mainCategory: 'Video Class / Lecture', subCategory: 'Quant & DI (Data Interpretation)', note: 'Arithmetic & Missing DI Lecture #09', minutes: 95, isStudy: true },
-        { id: Date.now() - 300, date: d0, mainCategory: 'Self Study & Practice', subCategory: 'GS / Banking Awareness', note: 'RBI Circulars + Current Affairs Revision', minutes: 65, isStudy: true },
-        { id: Date.now() - 400, date: d0, mainCategory: 'Sleep', subCategory: 'Sleep', note: 'Night Sleep', minutes: 430, isStudy: false },
-        { id: Date.now() - 500, date: d0, mainCategory: 'Social Media', subCategory: 'Social Media', note: 'YouTube & Telegram', minutes: 40, isStudy: false },
-        { id: Date.now() - 600, date: d2, mainCategory: 'Self Study & Practice', subCategory: 'Reasoning Ability & Puzzle', note: 'Linear Seating Arrangement 5 Sets', minutes: 140, isStudy: true }
+        { id: Date.now() - 100, date: d0, mainCategory: 'Video Class / Lecture', subCategory: 'Reasoning Ability & Puzzle', note: 'Mains Floor & Flat Puzzle Lecture #12', minutes: 110, isStudy: true, ownerEmail },
+        { id: Date.now() - 200, date: d0, mainCategory: 'Video Class / Lecture', subCategory: 'Quant & DI (Data Interpretation)', note: 'Arithmetic & Missing DI Lecture #09', minutes: 95, isStudy: true, ownerEmail },
+        { id: Date.now() - 300, date: d0, mainCategory: 'Self Study & Practice', subCategory: 'GS / Banking Awareness', note: 'RBI Circulars + Current Affairs Revision', minutes: 65, isStudy: true, ownerEmail },
+        { id: Date.now() - 400, date: d0, mainCategory: 'Sleep', subCategory: 'Sleep', note: 'Night Sleep', minutes: 430, isStudy: false, ownerEmail },
+        { id: Date.now() - 500, date: d0, mainCategory: 'Social Media', subCategory: 'Social Media', note: 'YouTube & Telegram', minutes: 40, isStudy: false, ownerEmail },
+        { id: Date.now() - 600, date: d2, mainCategory: 'Self Study & Practice', subCategory: 'Reasoning Ability & Puzzle', note: 'Linear Seating Arrangement 5 Sets', minutes: 140, isStudy: true, ownerEmail }
       ];
 
       db.todos = [
-        { id: Date.now() - 50, date: d0, mainCategory: 'Video Class / Lecture', subCategory: 'Reasoning Ability & Puzzle', note: 'Complete Syllogism + Coded Inequality Lecture', isStudy: true, done: false },
-        { id: Date.now() - 60, date: d0, mainCategory: 'Self Study & Practice', subCategory: 'Quant & DI (Data Interpretation)', note: 'Solve 4 Mains Level Caselet DI Sets', isStudy: true, done: false },
-        { id: Date.now() - 70, date: d1, mainCategory: 'Video Class / Lecture', subCategory: 'GS / Banking Awareness', note: 'Weekly Banking Awareness Live Class', isStudy: true, done: false }
+        { id: Date.now() - 50, date: d0, mainCategory: 'Video Class / Lecture', subCategory: 'Reasoning Ability & Puzzle', note: 'Complete Syllogism + Coded Inequality Lecture', isStudy: true, done: false, ownerEmail },
+        { id: Date.now() - 60, date: d0, mainCategory: 'Self Study & Practice', subCategory: 'Quant & DI (Data Interpretation)', note: 'Solve 4 Mains Level Caselet DI Sets', isStudy: true, done: false, ownerEmail },
+        { id: Date.now() - 70, date: d1, mainCategory: 'Video Class / Lecture', subCategory: 'GS / Banking Awareness', note: 'Weekly Banking Awareness Live Class', isStudy: true, done: false, ownerEmail }
       ];
 
       saveDB();
@@ -1951,4 +2532,4 @@
     }
   </script>
 </body>
-</html>
+  </html>
