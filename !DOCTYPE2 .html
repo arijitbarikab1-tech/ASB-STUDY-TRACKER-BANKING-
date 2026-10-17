@@ -1,0 +1,1954 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>ASB Pro Banking Study & Life Tracker</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    :root {
+      --bg: #0b1120;
+      --card: #162033;
+      --card-soft: #1e2d47;
+      --text: #f8fafc;
+      --text-heading: #e2e8f0;
+      --muted: #94a3b8;
+      --accent: #6366f1;
+      --accent-hover: #4f46e5;
+      --accent-soft: rgba(99, 102, 241, 0.14);
+      --accent-text: #a5b4fc;
+      --success: #10b981;
+      --danger: #ef4444;
+      --warning: #f59e0b;
+      --border: rgba(255, 255, 255, 0.08);
+      --header-bg: rgba(11, 17, 32, 0.92);
+      --shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
+      --radius: 14px;
+    }
+
+    /* --- DAY MODE (LIGHT THEME) --- */
+    body.light-mode {
+      --bg: #f1f5f9;
+      --card: #ffffff;
+      --card-soft: #e2e8f0;
+      --text: #0f172a;
+      --text-heading: #1e293b;
+      --muted: #64748b;
+      --accent-soft: rgba(99, 102, 241, 0.1);
+      --accent-text: #4f46e5;
+      --border: rgba(15, 23, 42, 0.1);
+      --header-bg: rgba(255, 255, 255, 0.92);
+      --shadow: 0 4px 18px rgba(15, 23, 42, 0.06);
+    }
+
+    /* --- COLOR TEMPLATES --- */
+    body[data-accent="emerald"] {
+      --accent: #10b981;
+      --accent-hover: #059669;
+      --accent-soft: rgba(16, 185, 129, 0.14);
+      --accent-text: #34d399;
+    }
+    body.light-mode[data-accent="emerald"] { --accent-text: #059669; }
+
+    body[data-accent="royal"] {
+      --accent: #3b82f6;
+      --accent-hover: #2563eb;
+      --accent-soft: rgba(59, 130, 246, 0.14);
+      --accent-text: #60a5fa;
+    }
+    body.light-mode[data-accent="royal"] { --accent-text: #2563eb; }
+
+    body[data-accent="sunset"] {
+      --accent: #f97316;
+      --accent-hover: #ea580c;
+      --accent-soft: rgba(249, 115, 22, 0.14);
+      --accent-text: #fb923c;
+    }
+    body.light-mode[data-accent="sunset"] { --accent-text: #ea580c; }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      -webkit-tap-highlight-color: transparent;
+      transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+    }
+
+    body {
+      background-color: var(--bg);
+      color: var(--text);
+      padding-bottom: 78px;
+      overflow-x: hidden;
+    }
+
+    /* --- ULTRA COMPACT TOP BAR --- */
+    .app-header {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      height: 54px;
+      background: var(--header-bg);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 10px;
+      gap: 6px;
+    }
+
+    .brand-user-wrap {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      min-width: 0;
+    }
+
+    .asb-logo {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      flex-shrink: 0;
+      border: 1px solid var(--border);
+      background: #fff;
+      padding: 2px;
+      cursor: pointer;
+    }
+
+    .user-chip {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background: var(--card);
+      border: 1px solid var(--border);
+      padding: 5px 9px;
+      border-radius: 20px;
+      max-width: 135px;
+      cursor: pointer;
+    }
+
+    .sync-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--warning);
+      flex-shrink: 0;
+    }
+
+    .sync-dot.online {
+      background: var(--success);
+      box-shadow: 0 0 6px var(--success);
+    }
+
+    .sync-dot.syncing {
+      background: var(--accent);
+      animation: pulse 1s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); opacity: 1; }
+      50% { transform: scale(1.35); opacity: 0.6; }
+    }
+
+    .user-email-text {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--text);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    /* Compact Header Date Switcher */
+    .header-date-nav {
+      display: flex;
+      align-items: center;
+      gap: 3px;
+      background: var(--card);
+      border: 1px solid var(--border);
+      padding: 3px 6px;
+      border-radius: 10px;
+    }
+
+    .date-step-btn {
+      background: transparent;
+      border: none;
+      color: var(--muted);
+      font-size: 12px;
+      padding: 3px 5px;
+      cursor: pointer;
+      border-radius: 6px;
+      font-weight: 700;
+    }
+
+    .date-step-btn:hover {
+      background: var(--card-soft);
+      color: var(--text);
+    }
+
+    .header-date-label {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--accent-text);
+      min-width: 68px;
+      text-align: center;
+      cursor: pointer;
+    }
+
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .icon-btn, .menu-btn {
+      background: var(--card);
+      border: 1px solid var(--border);
+      color: var(--text);
+      width: 35px;
+      height: 35px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      font-size: 16px;
+      flex-shrink: 0;
+    }
+
+    /* --- THREE-BAR (☰) SETTINGS & SYNC DRAWER --- */
+    .drawer-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.65);
+      backdrop-filter: blur(4px);
+      z-index: 200;
+      display: none;
+      justify-content: flex-end;
+    }
+
+    .drawer-overlay.open {
+      display: flex;
+    }
+
+    .drawer {
+      width: 340px;
+      max-width: 90vw;
+      background: var(--card);
+      height: 100%;
+      padding: 16px;
+      border-left: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      overflow-y: auto;
+    }
+
+    .drawer-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 10px;
+    }
+
+    .drawer-section {
+      background: var(--bg);
+      padding: 12px;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .drawer-label {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: var(--accent-text);
+      font-weight: 700;
+    }
+
+    /* --- MAIN WORKSPACE --- */
+    .container {
+      max-width: 1140px;
+      margin: 0 auto;
+      padding: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    /* --- TOP PINNED TO-DO BAR & DAILY GOAL --- */
+    .pinned-todo-bar {
+      background: linear-gradient(90deg, var(--accent-soft), var(--card));
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 10px 12px;
+      box-shadow: var(--shadow);
+    }
+
+    .pinned-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--accent-text);
+      margin-bottom: 8px;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+
+    .goal-mini-wrap {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 11px;
+      color: var(--muted);
+    }
+
+    .goal-bar-bg {
+      width: 90px;
+      height: 6px;
+      background: var(--bg);
+      border-radius: 8px;
+      overflow: hidden;
+      border: 1px solid var(--border);
+    }
+
+    .goal-bar-fill {
+      height: 100%;
+      background: var(--success);
+      width: 0%;
+      transition: width 0.3s ease;
+    }
+
+    .pinned-scroll {
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+      padding-bottom: 4px;
+    }
+
+    .pinned-chip {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 7px 10px;
+      min-width: 210px;
+      max-width: 260px;
+      flex-shrink: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      font-size: 11px;
+    }
+
+    .pinned-chip-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 4px;
+    }
+
+    /* --- MAIN TWO-COLUMN GRID --- */
+    .top-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 14px;
+    }
+
+    @media (min-width: 860px) {
+      .top-grid {
+        grid-template-columns: 1.05fr 0.95fr;
+      }
+    }
+
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 14px;
+      box-shadow: var(--shadow);
+    }
+
+    .card-title {
+      font-size: 14px;
+      font-weight: 700;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      color: var(--text-heading);
+    }
+
+    /* --- FORM CONTROLS --- */
+    label {
+      font-size: 11px;
+      color: var(--muted);
+      font-weight: 600;
+      display: block;
+      margin-bottom: 4px;
+    }
+
+    select, input[type="text"], input[type="password"], input[type="number"], input[type="date"] {
+      width: 100%;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 9px 11px;
+      border-radius: 9px;
+      font-size: 13px;
+      outline: none;
+    }
+
+    select:focus, input:focus {
+      border-color: var(--accent);
+    }
+
+    .form-group {
+      margin-bottom: 9px;
+    }
+
+    .subcat-box {
+      background: var(--accent-soft);
+      border: 1px dashed var(--accent);
+      padding: 10px;
+      border-radius: 11px;
+      margin-bottom: 9px;
+    }
+
+    /* --- QUICK DATE PILLS & QUICK ADD MINS --- */
+    .date-pills {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+      margin-bottom: 8px;
+    }
+
+    .date-pill {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      color: var(--muted);
+      padding: 5px 10px;
+      border-radius: 8px;
+      font-size: 11px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .date-pill.active {
+      background: var(--accent);
+      color: white;
+      border-color: var(--accent);
+    }
+
+    /* --- TIMER & BUTTONS --- */
+    .timer-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: var(--bg);
+      padding: 10px 12px;
+      border-radius: 11px;
+      margin-bottom: 10px;
+      border: 1px solid var(--border);
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .timer-display {
+      font-size: 21px;
+      font-weight: 800;
+      font-variant-numeric: tabular-nums;
+      color: var(--accent-text);
+    }
+
+    .btn-group {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      border: none;
+      padding: 8px 12px;
+      border-radius: 9px;
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+      transition: transform 0.1s;
+    }
+
+    .btn:active {
+      transform: scale(0.97);
+    }
+
+    .btn-primary { background: var(--accent); color: white; }
+    .btn-success { background: var(--success); color: white; }
+    .btn-danger { background: var(--danger); color: white; }
+    .btn-soft { background: var(--card-soft); color: var(--text); }
+    .btn-xs { padding: 4px 8px; font-size: 10px; border-radius: 6px; }
+
+    .manual-time-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr auto;
+      gap: 8px;
+    }
+
+    /* --- SCROLLABLE LISTS --- */
+    .list-scroll {
+      max-height: 240px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 7px;
+      padding-right: 2px;
+    }
+
+    .log-item, .todo-item {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      padding: 9px 11px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      font-size: 12px;
+    }
+
+    .log-meta {
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 2px 6px;
+      border-radius: 5px;
+      font-size: 10px;
+      font-weight: 700;
+      background: var(--accent-soft);
+      color: var(--accent-text);
+    }
+
+    .badge-sub {
+      background: rgba(16, 185, 129, 0.16);
+      color: #10b981;
+    }
+
+    .badge-date {
+      background: rgba(245, 158, 11, 0.16);
+      color: #f59e0b;
+    }
+
+    .del-btn {
+      background: transparent;
+      border: none;
+      color: var(--muted);
+      cursor: pointer;
+      font-size: 13px;
+      padding: 3px 5px;
+    }
+
+    .del-btn:hover {
+      color: var(--danger);
+    }
+
+    /* --- ANALYTICS SECTION --- */
+    .section-divider {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 6px;
+    }
+
+    .period-tabs {
+      display: flex;
+      background: var(--card);
+      padding: 4px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      gap: 4px;
+    }
+
+    .period-tab {
+      padding: 6px 11px;
+      border-radius: 7px;
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--muted);
+      cursor: pointer;
+      border: none;
+      background: transparent;
+    }
+
+    .period-tab.active {
+      background: var(--accent);
+      color: white;
+    }
+
+    .summary-4col {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+
+    @media (min-width: 640px) {
+      .summary-4col {
+        grid-template-columns: repeat(4, 1fr);
+      }
+    }
+
+    .mini-stat-card {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      padding: 10px;
+      border-radius: 11px;
+      text-align: center;
+    }
+
+    .mini-stat-val {
+      font-size: 15px;
+      font-weight: 800;
+      color: var(--accent-text);
+      margin-top: 3px;
+    }
+
+    .analytics-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 14px;
+    }
+
+    @media (min-width: 768px) {
+      .analytics-grid {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+
+    .chart-box {
+      position: relative;
+      height: 215px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .stat-row {
+      margin-bottom: 9px;
+    }
+
+    .stat-header {
+      display: flex;
+      justify-content: space-between;
+      font-size: 12px;
+      margin-bottom: 4px;
+      font-weight: 600;
+    }
+
+    .progress-track {
+      width: 100%;
+      height: 7px;
+      background: var(--bg);
+      border-radius: 10px;
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      height: 100%;
+      border-radius: 10px;
+      transition: width 0.3s ease;
+    }
+
+    /* --- COLOR SWATCHES IN DRAWER --- */
+    .swatch-row {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+    .color-swatch {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      cursor: pointer;
+      border: 2px solid transparent;
+    }
+    .color-swatch.active {
+      border-color: var(--text);
+      transform: scale(1.1);
+    }
+
+    /* --- BOTTOM MOBILE NAVIGATION --- */
+    .bottom-nav {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 58px;
+      background: var(--header-bg);
+      backdrop-filter: blur(12px);
+      border-top: 1px solid var(--border);
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+      z-index: 90;
+    }
+
+    .nav-item {
+      background: none;
+      border: none;
+      color: var(--muted);
+      font-size: 11px;
+      font-weight: 600;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 2px;
+      cursor: pointer;
+    }
+
+    .nav-item.active {
+      color: var(--accent);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- COMPACT TOP HEADER: ASB Logo + User Email + Date Nav + Day/Night Mode + ☰ Menu -->
+  <header class="app-header">
+    <div class="brand-user-wrap">
+      <!-- ASB Monogram SVG Logo (Matches Your Uploaded Image) -->
+      <svg class="asb-logo" viewBox="0 0 100 100" onclick="toggleDrawer(true)" title="ASB Study Tracker">
+        <circle cx="50" cy="50" r="48" fill="#ffffff" stroke="#000000" stroke-width="4"/>
+        <path d="M18 78 L28 24 L36 24 L36 78 M21 56 L35 56" stroke="#000000" stroke-width="8" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+        <path d="M58 22 L42 22 L42 48 L58 48 L58 78 L42 78" stroke="#000000" stroke-width="8" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+        <path d="M66 24 L66 76 M66 24 C84 26, 86 48, 66 50 C86 52, 84 74, 66 76" stroke="#000000" stroke-width="8" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+      </svg>
+
+      <!-- User Email ID Pill -->
+      <div class="user-chip" onclick="toggleDrawer(true)" title="Click to Manage Account & Cloud Sync">
+        <span class="sync-dot" id="headerSyncDot"></span>
+        <span class="user-email-text" id="headerUserEmail">Guest (Login)</span>
+      </div>
+    </div>
+
+    <!-- Quick Previous / Next Day Switcher -->
+    <div class="header-date-nav">
+      <button class="date-step-btn" onclick="shiftActiveDate(-1)" title="Previous Day">◀</button>
+      <span class="header-date-label" id="headerActiveDateText" onclick="toggleDrawer(true)">Today</span>
+      <button class="date-step-btn" onclick="shiftActiveDate(1)" title="Next Day">▶</button>
+      <button class="date-step-btn" onclick="setTodayDate()" style="color:#10b981; font-size:10px;">Today</button>
+    </div>
+
+    <!-- Right Buttons: Day/Night Toggle & ☰ Menu -->
+    <div class="header-actions">
+      <button class="icon-btn" id="themeToggleBtn" onclick="toggleThemeMode()" title="Switch Day / Night Mode">☀️</button>
+      <button class="menu-btn" onclick="toggleDrawer(true)" title="Settings, Date Picker & Cloud Login">☰</button>
+    </div>
+  </header>
+
+  <!-- THREE-BAR (☰) SETTINGS, ACCOUNT SYNC, THEME & DATE DRAWER -->
+  <div class="drawer-overlay" id="drawerOverlay" onclick="if(event.target===this) toggleDrawer(false)">
+    <div class="drawer">
+      <div class="drawer-header">
+        <h3 style="font-size: 15px;">⚙️ Account, Theme & Sync</h3>
+        <button class="btn btn-soft btn-xs" onclick="toggleDrawer(false)">✕ Close</button>
+      </div>
+
+      <!-- NEW: DAY / NIGHT MODE & COLOR TEMPLATE CUSTOMIZER -->
+      <div class="drawer-section">
+        <span class="drawer-label">🎨 Day / Night Mode & Color Theme</span>
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+          <span style="font-size:12px; font-weight:600;">Display Mode</span>
+          <button class="btn btn-soft btn-xs" id="drawerThemeBtn" onclick="toggleThemeMode()">☀️ Switch to Day Mode</button>
+        </div>
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-top:4px;">
+          <span style="font-size:12px; font-weight:600;">Accent Template</span>
+          <div class="swatch-row">
+            <div class="color-swatch active" style="background:#6366f1;" onclick="setAccentColor('indigo', this)" title="Indigo"></div>
+            <div class="color-swatch" style="background:#10b981;" onclick="setAccentColor('emerald', this)" title="Emerald"></div>
+            <div class="color-swatch" style="background:#3b82f6;" onclick="setAccentColor('royal', this)" title="Royal Blue"></div>
+            <div class="color-swatch" style="background:#f97316;" onclick="setAccentColor('sunset', this)" title="Sunset Orange"></div>
+          </div>
+        </div>
+        <div style="margin-top:4px;">
+          <label>Daily Study Target (Hours)</label>
+          <input type="number" id="dailyGoalInput" min="1" max="18" value="8" onchange="updateDailyGoal(this.value)" />
+        </div>
+      </div>
+
+      <!-- 1. USER ID (GMAIL) & PASSWORD CLOUD SYNC (SAME FIRST DATABASE LINK) -->
+      <div class="drawer-section">
+        <span class="drawer-label">🔐 Auto Cloud Sync (Same First Link)</span>
+        <p style="font-size:11px; color:var(--muted); line-height:1.35;">
+          Login with the same Email ID and Password on your Mobile and Laptop. Works Offline & Auto-Syncs whenever Online!
+        </p>
+        <div>
+          <label>User ID / Gmail ID</label>
+          <input type="text" id="loginEmail" placeholder="e.g. yourname@gmail.com" />
+        </div>
+        <div>
+          <label>Password</label>
+          <input type="password" id="loginPassword" placeholder="Enter your sync password" />
+        </div>
+        <div class="btn-group">
+          <button class="btn btn-primary" style="flex:1;" onclick="loginAndSync()">🔄 Login & Sync</button>
+          <button class="btn btn-soft" onclick="pullFromCloud(true)" title="Fetch latest data from cloud">⬇️ Pull</button>
+          <button class="btn btn-danger" onclick="logoutAccount()" title="Logout">Logout</button>
+        </div>
+        <div id="syncStatusMsg" style="font-size:11px; color:var(--success); font-weight:600;">Status: Local Mode</div>
+        <div id="networkStatusBadge" style="font-size:10px; color:var(--muted);">Network: Checking...</div>
+      </div>
+
+      <!-- 2. FULL DATE, TIME & HISTORICAL NAVIGATOR (1 Month / 1 Year Ago) -->
+      <div class="drawer-section">
+        <span class="drawer-label">📅 Date & History Navigator</span>
+        <div style="font-size:11px; color:var(--muted);" id="liveClockDrawer">Live Time: --:--:--</div>
+        <div>
+          <label>Select Any Date (Past or Future)</label>
+          <input type="date" id="activeDatePicker" onchange="changeActiveDate(this.value)" />
+        </div>
+        <label>Quick History Jump</label>
+        <div class="btn-group">
+          <button class="btn btn-soft btn-xs" onclick="shiftActiveDate(-1)">-1 Day</button>
+          <button class="btn btn-soft btn-xs" onclick="shiftActiveDate(-7)">-1 Week</button>
+          <button class="btn btn-soft btn-xs" onclick="shiftActiveDate(-30)">-1 Month</button>
+          <button class="btn btn-soft btn-xs" onclick="shiftActiveDate(-365)">-1 Year</button>
+          <button class="btn btn-primary btn-xs" onclick="setTodayDate()">Today</button>
+        </div>
+      </div>
+
+      <!-- 3. ADD CUSTOM BANKING SUB-CATEGORY -->
+      <div class="drawer-section">
+        <span class="drawer-label">➕ Add Custom Banking Sub-Category</span>
+        <input type="text" id="newSubcatInput" placeholder="e.g. Computer Aptitude / Descriptive" />
+        <button class="btn btn-soft" onclick="addCustomSubcat()">Add Sub-Category</button>
+      </div>
+
+      <!-- 4. BACKUP, RESTORE & DEMO DATA -->
+      <div class="drawer-section">
+        <span class="drawer-label">💾 Database Backup & Demo</span>
+        <button class="btn btn-soft" onclick="loadSampleData()">📊 Load Sample Study Data</button>
+        <div class="btn-group">
+          <button class="btn btn-soft" style="flex:1;" onclick="exportData()">⬇️ Export JSON</button>
+          <button class="btn btn-soft" style="flex:1;" onclick="document.getElementById('importFile').click()">⬆️ Import JSON</button>
+        </div>
+        <input type="file" id="importFile" style="display:none" accept=".json" onchange="importData(event)" />
+      </div>
+    </div>
+  </div>
+
+  <!-- MAIN CONTAINER -->
+  <div class="container">
+
+    <!-- TOP PINNED TO-DO BANNER (Shows Planned Tasks + Daily Target Progress) -->
+    <div class="pinned-todo-bar">
+      <div class="pinned-header">
+        <span>📌 Pinned To-Do Tasks for <span id="pinnedDateTitle">Today</span></span>
+        <div class="goal-mini-wrap">
+          <span id="dailyGoalText">Goal: 0%</span>
+          <div class="goal-bar-bg"><div class="goal-bar-fill" id="dailyGoalFill"></div></div>
+          <span id="pinnedCountBadge" style="font-weight:700; color:var(--accent-text);">0 Pending</span>
+        </div>
+      </div>
+      <div class="pinned-scroll" id="pinnedTodoStrip"></div>
+    </div>
+
+    <!-- WORKSPACE GRID: 1. STUDY LOGGER | 2. STRUCTURED TO-DO PLANNER -->
+    <div class="top-grid" id="trackerSection">
+
+      <!-- CARD 1: STUDY & ACTIVITY LOGGER -->
+      <div class="card">
+        <div class="card-title">
+          <span>⏱️ Study & Activity Logger</span>
+          <span class="badge" id="loggerActiveDateBadge">Today</span>
+        </div>
+
+        <!-- 1. Main Category -->
+        <div class="form-group">
+          <label>1. Main Category</label>
+          <select id="mainCategory" onchange="handleLoggerCategoryChange()">
+            <option value="Video Class / Lecture">📹 Video Class / Lecture</option>
+            <option value="Self Study & Practice">📚 Self Study & Practice</option>
+            <option value="Sleep">😴 Sleep</option>
+            <option value="Social Media">📱 Social Media</option>
+            <option value="Daily Routine / Other">⚡ Daily Routine / Other</option>
+          </select>
+        </div>
+
+        <!-- 2. Banking Sub-Category & 3. Class / Lecture Name -->
+        <div class="subcat-box" id="loggerSubcatWrapper">
+          <div class="form-group">
+            <label>2. Banking Section (Sub-Category)</label>
+            <select id="subCategory" class="subcat-dropdown"></select>
+          </div>
+          <div class="form-group" style="margin-bottom:0;">
+            <label>3. Class / Lecture Name or Topic</label>
+            <input type="text" id="classNote" placeholder="e.g. Floor Puzzle Lecture #14, Caslet DI Set..." />
+          </div>
+        </div>
+
+        <!-- General Activity Note (For Sleep / Social Media) -->
+        <div class="form-group" id="generalNoteWrapper" style="display:none;">
+          <label>Activity Note (Optional)</label>
+          <input type="text" id="generalNote" placeholder="e.g. Night Sleep, YouTube, Instagram..." />
+        </div>
+
+        <!-- Live Stopwatch Timer -->
+        <div class="timer-bar">
+          <div>
+            <div style="font-size:10px; color:var(--muted); font-weight:700;">LIVE SESSION TIMER</div>
+            <div class="timer-display" id="timerDisplay">00:00:00</div>
+          </div>
+          <div class="btn-group">
+            <button class="btn btn-primary" id="startPauseBtn" onclick="toggleTimer()">▶ Start</button>
+            <button class="btn btn-soft" onclick="resetTimer()">↺</button>
+            <button class="btn btn-success" onclick="saveTimerSession()">💾 Save</button>
+          </div>
+        </div>
+
+        <!-- Direct Manual Duration Entry + Quick Tap Buttons -->
+        <div class="form-group">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
+            <label style="margin:0;">Or Log Duration Manually</label>
+            <div class="btn-group">
+              <button type="button" class="btn btn-soft btn-xs" onclick="quickLogMinutes(15)">+15m</button>
+              <button type="button" class="btn btn-soft btn-xs" onclick="quickLogMinutes(30)">+30m</button>
+              <button type="button" class="btn btn-soft btn-xs" onclick="quickLogMinutes(60)">+1h</button>
+            </div>
+          </div>
+          <div class="manual-time-row">
+            <input type="number" id="manualHours" placeholder="Hours (0)" min="0" max="24" />
+            <input type="number" id="manualMins" placeholder="Minutes (45)" min="0" max="59" />
+            <button class="btn btn-primary" onclick="addManualEntry()">+ Log Time</button>
+          </div>
+        </div>
+
+        <!-- Selected Date Logged Sessions -->
+        <div style="margin-top: 12px;">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+            <label style="margin:0;">📋 Logged Sessions (<span id="selectedDateTotalLabel">0h 0m</span>)</label>
+            <input type="text" id="logSearchInput" placeholder="🔍 Search logs..." oninput="renderTodayLogs()" style="width:130px; padding:4px 8px; font-size:11px;" />
+          </div>
+          <div class="list-scroll" id="todayLogList"></div>
+        </div>
+      </div>
+
+      <!-- CARD 2: STRUCTURED TO-DO PLANNER (Exact Same 3 Options + Target Date) -->
+      <div class="card" id="todoSection">
+        <div class="card-title">
+          <span>✅ Study & Task To-Do Planner</span>
+          <span class="badge" id="todoTotalBadge">0 Tasks</span>
+        </div>
+
+        <!-- Target Date Selection (Today, Tomorrow, Day After Tomorrow, Custom) -->
+        <div class="form-group">
+          <label>Schedule Task For Date</label>
+          <div class="date-pills">
+            <button type="button" class="date-pill active" id="pillToday" onclick="setTodoQuickDate(0, 'pillToday')">Today</button>
+            <button type="button" class="date-pill" id="pillTomorrow" onclick="setTodoQuickDate(1, 'pillTomorrow')">Tomorrow</button>
+            <button type="button" class="date-pill" id="pillDayAfter" onclick="setTodoQuickDate(2, 'pillDayAfter')">Day After Tomorrow</button>
+          </div>
+          <input type="date" id="todoTargetDate" onchange="clearTodoPillHighlight()" />
+        </div>
+
+        <!-- 1. To-Do Main Category -->
+        <div class="form-group">
+          <label>1. Main Category</label>
+          <select id="todoMainCategory" onchange="handleTodoCategoryChange()">
+            <option value="Video Class / Lecture">📹 Video Class / Lecture</option>
+            <option value="Self Study & Practice">📚 Self Study & Practice</option>
+            <option value="Sleep">😴 Sleep</option>
+            <option value="Social Media">📱 Social Media</option>
+            <option value="Daily Routine / Other">⚡ Daily Routine / Other</option>
+          </select>
+        </div>
+
+        <!-- 2. To-Do Banking Section (Sub-Category) -->
+        <div class="subcat-box" id="todoSubcatWrapper">
+          <div class="form-group">
+            <label>2. Banking Section (Sub-Category)</label>
+            <select id="todoSubCategory" class="subcat-dropdown"></select>
+          </div>
+          <!-- 3. To-Do Class / Lecture Name -->
+          <div class="form-group" style="margin-bottom:0;">
+            <label>3. Class / Lecture Name or Study Target</label>
+            <input type="text" id="todoClassNote" placeholder="e.g. Finish Mains Puzzle Class #15 + 20 Questions..." onkeypress="if(event.key==='Enter') addStructuredTodo()" />
+          </div>
+        </div>
+
+        <!-- Non-Study To-Do Note -->
+        <div class="form-group" id="todoGeneralNoteWrapper" style="display:none;">
+          <label>Task Description</label>
+          <input type="text" id="todoGeneralNote" placeholder="Enter task details..." />
+        </div>
+
+        <button class="btn btn-primary" style="width:100%; margin-bottom:12px;" onclick="addStructuredTodo()">➕ Add Task to To-Do List</button>
+
+        <!-- Filter To-Do View -->
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px; flex-wrap:wrap; gap:4px;">
+          <label style="margin:0;">Scheduled Tasks</label>
+          <div class="btn-group">
+            <button class="btn btn-soft btn-xs" id="filterTodoActive" onclick="setTodoFilter('activeDate')">Selected Date</button>
+            <button class="btn btn-soft btn-xs" id="filterTodoTomorrow" onclick="setTodoFilter('tomorrow')">Tomorrow</button>
+            <button class="btn btn-soft btn-xs" id="filterTodoAll" onclick="setTodoFilter('all')">All Dates</button>
+          </div>
+        </div>
+
+        <div class="list-scroll" id="todoList"></div>
+      </div>
+
+    </div>
+
+    <!-- SCROLL-DOWN SECTION: DEEP ANALYTICS & PIE CHARTS (Day, Weekly 7D, Monthly 30D) -->
+    <div id="analyticsSection">
+      <div class="section-divider">
+        <h2 style="font-size: 16px; font-weight: 800;">📊 Deep Study & Life Analytics</h2>
+        <div class="period-tabs">
+          <button class="period-tab active" onclick="setAnalyticsPeriod('day', this)">Selected Day</button>
+          <button class="period-tab" onclick="setAnalyticsPeriod('week', this)">Weekly (7 Days)</button>
+          <button class="period-tab" onclick="setAnalyticsPeriod('month', this)">Monthly (30 Days)</button>
+        </div>
+      </div>
+
+      <!-- 4-Card Quick Summary Row -->
+      <div class="summary-4col" style="margin-top:10px;">
+        <div class="mini-stat-card">
+          <div style="font-size:11px; color:var(--muted);">Selected Day Study</div>
+          <div class="mini-stat-val" id="sumStudyDay">0h 0m</div>
+        </div>
+        <div class="mini-stat-card">
+          <div style="font-size:11px; color:var(--muted);">Weekly Study (7D)</div>
+          <div class="mini-stat-val" id="sumStudyWeek">0h 0m</div>
+        </div>
+        <div class="mini-stat-card">
+          <div style="font-size:11px; color:var(--muted);">Monthly Study (30D)</div>
+          <div class="mini-stat-val" id="sumStudyMonth">0h 0m</div>
+        </div>
+        <div class="mini-stat-card">
+          <div style="font-size:11px; color:var(--muted);">Sleep (Selected Period)</div>
+          <div class="mini-stat-val" id="sumSleepPeriod" style="color:#10b981;">0h 0m</div>
+        </div>
+      </div>
+
+      <!-- TWO PIE CHARTS + PROGRESS BREAKDOWN BARS -->
+      <div class="analytics-grid">
+
+        <!-- CHART 1: BANKING SUBJECT SUB-CATEGORIES -->
+        <div class="card">
+          <div class="card-title">
+            <span>🎯 Banking Section Sub-Categories</span>
+            <span class="badge" id="subcatPeriodBadge">Selected Day</span>
+          </div>
+          <div class="chart-box">
+            <canvas id="subCategoryPieChart"></canvas>
+          </div>
+          <div id="subCategoryBars" style="margin-top: 12px;"></div>
+        </div>
+
+        <!-- CHART 2: MAIN CATEGORIES (Video Class, Self Study, Sleep, Social Media) -->
+        <div class="card">
+          <div class="card-title">
+            <span>🌍 Overall Category & Routine Share</span>
+            <span class="badge" id="mainCatPeriodBadge">Selected Day</span>
+          </div>
+          <div class="chart-box">
+            <canvas id="mainCategoryPieChart"></canvas>
+          </div>
+          <div id="mainCategoryBars" style="margin-top: 12px;"></div>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+
+  <!-- BOTTOM NAVIGATION BAR FOR MOBILE -->
+  <nav class="bottom-nav">
+    <button class="nav-item active" onclick="scrollToSection('trackerSection', this)">
+      <span style="font-size:15px;">⏱️</span>
+      <span>Logger</span>
+    </button>
+    <button class="nav-item" onclick="scrollToSection('todoSection', this)">
+      <span style="font-size:15px;">✅</span>
+      <span>To-Do Planner</span>
+    </button>
+    <button class="nav-item" onclick="scrollToSection('analyticsSection', this)">
+      <span style="font-size:15px;">📊</span>
+      <span>Analytics & Pie</span>
+    </button>
+    <button class="nav-item" onclick="toggleThemeMode()">
+      <span style="font-size:15px;" id="bottomThemeIcon">☀️</span>
+      <span>Day/Night</span>
+    </button>
+    <button class="nav-item" onclick="toggleDrawer(true)">
+      <span style="font-size:15px;">☰</span>
+      <span>Sync & Date</span>
+    </button>
+  </nav>
+
+  <script>
+    // --- DEFAULT BANKING SUB-CATEGORIES ---
+    const DEFAULT_SUBCATS = [
+      'Reasoning Ability & Puzzle',
+      'Quant & DI (Data Interpretation)',
+      'GS / Banking Awareness',
+      'English Language',
+      'Full Mock Test'
+    ];
+
+    const COLORS = ['#6366f1', '#10b981', '#f59e0b', '#ec4899', '#06b6d4', '#8b5cf6', '#ef4444'];
+
+    // --- STATE & DATABASE (Exact same key 'proBankingTrackerDB_v2' preserved!) ---
+    let db = JSON.parse(localStorage.getItem('proBankingTrackerDB_v2')) || {
+      logs: [],
+      todos: [],
+      customSubcats: [],
+      deletedIds: [],
+      settings: { theme: 'dark', accent: 'indigo', dailyGoalHours: 8 },
+      auth: { email: '', vaultKey: '' },
+      pendingSync: false,
+      updatedAt: Date.now()
+    };
+
+    // Ensure backwards compatibility with existing saved data
+    if (!db.settings) db.settings = { theme: 'dark', accent: 'indigo', dailyGoalHours: 8 };
+    if (!db.deletedIds) db.deletedIds = [];
+
+    let activeDate = getLocalISODate(new Date());
+    let currentAnalyticsPeriod = 'day';
+    let todoFilterMode = 'activeDate';
+
+    let timerInterval = null;
+    let timerSeconds = 0;
+    let timerRunning = false;
+
+    let subCatChartInstance = null;
+    let mainCatChartInstance = null;
+
+    function getLocalISODate(d) {
+      const offset = d.getTimezoneOffset() * 60000;
+      return new Date(d.getTime() - offset).toISOString().split('T')[0];
+    }
+
+    function saveDB(pushCloud = true) {
+      db.updatedAt = Date.now();
+      if (pushCloud) db.pendingSync = true;
+      localStorage.setItem('proBankingTrackerDB_v2', JSON.stringify(db));
+      renderAll();
+      if (pushCloud && db.auth && db.auth.vaultKey) {
+        pushToCloud();
+      }
+    }
+
+    // --- INITIALIZATION & REAL-TIME OFFLINE/ONLINE AUTO-SYNC ---
+    window.onload = () => {
+      applyThemeAndAccent();
+      populateSubcatDropdowns();
+      document.getElementById('activeDatePicker').value = activeDate;
+      document.getElementById('dailyGoalInput').value = db.settings.dailyGoalHours || 8;
+      setTodoQuickDate(0, 'pillToday');
+      updateClock();
+      setInterval(updateClock, 1000);
+      updateAuthUI();
+      updateNetworkStatusUI();
+      renderAll();
+
+      // Auto pull latest cloud data on startup if logged in
+      if (db.auth && db.auth.vaultKey) {
+        syncBidirectional();
+      }
+
+      // Auto-Sync every 25 seconds when online
+      setInterval(() => {
+        if (navigator.onLine && db.auth && db.auth.vaultKey) {
+          syncBidirectional();
+        }
+      }, 25000);
+    };
+
+    // Listen for Online / Offline events so offline changes sync automatically when back online
+    window.addEventListener('online', () => {
+      updateNetworkStatusUI();
+      if (db.auth && db.auth.vaultKey) {
+        syncBidirectional();
+      }
+    });
+
+    window.addEventListener('offline', () => {
+      updateNetworkStatusUI();
+    });
+
+    // Also auto-sync when switching back to the browser tab or unlocking phone
+    document.addEventListener('visibilitychange', () => {
+      if (document.visibilityState === 'visible' && navigator.onLine && db.auth && db.auth.vaultKey) {
+        syncBidirectional();
+      }
+    });
+
+    function updateNetworkStatusUI() {
+      const badge = document.getElementById('networkStatusBadge');
+      if (navigator.onLine) {
+        badge.textContent = '🟢 Network: Online (Auto-Sync Active)';
+        badge.style.color = '#10b981';
+      } else {
+        badge.textContent = '🟠 Network: Offline (Saving to Personal Device)';
+        badge.style.color = '#f59e0b';
+      }
+    }
+
+    // --- DAY MODE / NIGHT MODE & COLOR TEMPLATES ---
+    function toggleThemeMode() {
+      db.settings.theme = (db.settings.theme === 'light') ? 'dark' : 'light';
+      applyThemeAndAccent();
+      saveDB(false);
+    }
+
+    function setAccentColor(accentName, el) {
+      db.settings.accent = accentName;
+      document.querySelectorAll('.color-swatch').forEach(s => s.classList.remove('active'));
+      if (el) el.classList.add('active');
+      applyThemeAndAccent();
+      saveDB(false);
+    }
+
+    function applyThemeAndAccent() {
+      const isLight = db.settings.theme === 'light';
+      document.body.classList.toggle('light-mode', isLight);
+      document.body.setAttribute('data-accent', db.settings.accent || 'indigo');
+
+      const icon = isLight ? '🌙' : '☀️';
+      document.getElementById('themeToggleBtn').textContent = icon;
+      document.getElementById('bottomThemeIcon').textContent = icon;
+      document.getElementById('drawerThemeBtn').textContent = isLight ? '🌙 Switch to Night Mode' : '☀️ Switch to Day Mode';
+    }
+
+    function updateDailyGoal(val) {
+      db.settings.dailyGoalHours = Math.max(1, parseInt(val) || 8);
+      saveDB();
+    }
+
+    function updateClock() {
+      const now = new Date();
+      const dateStr = now.toLocaleDateString('en-US', { weekday: 'short', day: '2-digit', month: 'short', year: 'numeric' });
+      const timeStr = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+      document.getElementById('liveClockDrawer').textContent = `Current Time: ${dateStr} • ${timeStr}`;
+    }
+
+    // --- POPULATE SUB-CATEGORIES INTO BOTH LOGGER & TO-DO ---
+    function populateSubcatDropdowns() {
+      const allSubcats = [...DEFAULT_SUBCATS, ...(db.customSubcats || [])];
+      document.querySelectorAll('.subcat-dropdown').forEach(sel => {
+        const currentVal = sel.value;
+        sel.innerHTML = allSubcats.map(sc => `<option value="${sc}">${sc}</option>`).join('');
+        if (currentVal && allSubcats.includes(currentVal)) sel.value = currentVal;
+      });
+    }
+
+    function addCustomSubcat() {
+      const inp = document.getElementById('newSubcatInput');
+      const val = inp.value.trim();
+      if (!val) return;
+      if (!db.customSubcats.includes(val)) {
+        db.customSubcats.push(val);
+        populateSubcatDropdowns();
+        saveDB();
+      }
+      inp.value = '';
+    }
+
+    // --- CROSS-DEVICE CLOUD SYNC (EXACT SAME FIRST DATABASE LINK `ntfy.sh`) ---
+    async function generateVaultKey(email, password) {
+      const cleanStr = `${email.toLowerCase().trim()}::${password.trim()}`;
+      const msgBuffer = new TextEncoder().encode(cleanStr);
+      const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
+      const hashArray = Array.from(new Uint8Array(hashBuffer));
+      return 'prostudy_vault_' + hashArray.map(b => b.toString(16).padStart(2, '0')).join('').slice(0, 28);
+    }
+
+    async function loginAndSync() {
+      const email = document.getElementById('loginEmail').value.trim();
+      const pass = document.getElementById('loginPassword').value.trim();
+      if (!email || !pass) {
+        alert('Please enter both your User ID (Email) and Password.');
+        return;
+      }
+      const statusEl = document.getElementById('syncStatusMsg');
+      statusEl.textContent = 'Connecting & syncing with cloud...';
+      statusEl.style.color = '#f59e0b';
+
+      const vaultKey = await generateVaultKey(email, pass);
+      db.auth = { email, vaultKey };
+      updateAuthUI();
+
+      await pullFromCloud(true);
+      await pushToCloud();
+    }
+
+    async function syncBidirectional() {
+      if (!navigator.onLine || !db.auth || !db.auth.vaultKey) return;
+      if (db.pendingSync) {
+        await pushToCloud();
+      }
+      await pullFromCloud(false);
+    }
+
+    async function pushToCloud() {
+      if (!db.auth || !db.auth.vaultKey) return;
+      const statusEl = document.getElementById('syncStatusMsg');
+      const dotEl = document.getElementById('headerSyncDot');
+
+      if (!navigator.onLine) {
+        db.pendingSync = true;
+        localStorage.setItem('proBankingTrackerDB_v2', JSON.stringify(db));
+        statusEl.textContent = 'Saved Locally (Will Auto-Sync when Online)';
+        statusEl.style.color = '#f59e0b';
+        return;
+      }
+
+      try {
+        dotEl.classList.add('syncing');
+        const payload = JSON.stringify({
+          logs: db.logs,
+          todos: db.todos,
+          customSubcats: db.customSubcats,
+          deletedIds: db.deletedIds || [],
+          settings: db.settings,
+          updatedAt: db.updatedAt
+        });
+        await fetch(`https://ntfy.sh/${db.auth.vaultKey}`, {
+          method: 'POST',
+          body: payload
+        });
+        db.pendingSync = false;
+        localStorage.setItem('proBankingTrackerDB_v2', JSON.stringify(db));
+        dotEl.classList.remove('syncing');
+        dotEl.classList.add('online');
+        statusEl.textContent = `Auto-Synced (${new Date().toLocaleTimeString()})`;
+        statusEl.style.color = '#10b981';
+      } catch (err) {
+        dotEl.classList.remove('syncing');
+        db.pendingSync = true;
+        statusEl.textContent = 'Saved on Device (Pending Online Sync)';
+        statusEl.style.color = '#f59e0b';
+      }
+    }
+
+    async function pullFromCloud(showAlert = false) {
+      if (!db.auth || !db.auth.vaultKey || !navigator.onLine) return;
+      const statusEl = document.getElementById('syncStatusMsg');
+      const dotEl = document.getElementById('headerSyncDot');
+      try {
+        dotEl.classList.add('syncing');
+        const res = await fetch(`https://ntfy.sh/${db.auth.vaultKey}/json?poll=1&since=all`);
+        const text = await res.text();
+        const lines = text.trim().split('\n').filter(Boolean);
+
+        let latestPayload = null;
+        for (const line of lines) {
+          try {
+            const msg = JSON.parse(line);
+            if (msg.event === 'message' && msg.message) {
+              const parsed = JSON.parse(msg.message);
+              if (!latestPayload || (parsed.updatedAt && parsed.updatedAt > (latestPayload.updatedAt || 0))) {
+                latestPayload = parsed;
+              }
+            }
+          } catch (e) {}
+        }
+
+        if (latestPayload) {
+          const delSet = new Set([...(db.deletedIds || []), ...(latestPayload.deletedIds || [])]);
+          db.deletedIds = Array.from(delSet);
+
+          const logMap = new Map();
+          [...(latestPayload.logs || []), ...(db.logs || [])].forEach(l => {
+            if (!delSet.has(l.id)) logMap.set(l.id, l);
+          });
+          db.logs = Array.from(logMap.values()).sort((a, b) => b.id - a.id);
+
+          const todoMap = new Map();
+          [...(latestPayload.todos || []), ...(db.todos || [])].forEach(t => {
+            if (!delSet.has(t.id)) todoMap.set(t.id, t);
+          });
+          db.todos = Array.from(todoMap.values()).sort((a, b) => b.id - a.id);
+
+          const subSet = new Set([...(db.customSubcats || []), ...(latestPayload.customSubcats || [])]);
+          db.customSubcats = Array.from(subSet);
+
+          populateSubcatDropdowns();
+          saveDB(false);
+          statusEl.textContent = `Synced with Cloud (${new Date().toLocaleTimeString()})`;
+          statusEl.style.color = '#10b981';
+          if (showAlert) alert('Cloud Sync Successful! Your data is updated across all devices.');
+        } else {
+          statusEl.textContent = 'Cloud Vault Ready & Active';
+          statusEl.style.color = '#10b981';
+        }
+        dotEl.classList.remove('syncing');
+        dotEl.classList.add('online');
+      } catch (err) {
+        dotEl.classList.remove('syncing');
+        statusEl.textContent = 'Offline - Using Personal Device Data';
+        statusEl.style.color = '#f59e0b';
+      }
+    }
+
+    function logoutAccount() {
+      db.auth = { email: '', vaultKey: '' };
+      document.getElementById('loginEmail').value = '';
+      document.getElementById('loginPassword').value = '';
+      saveDB(false);
+      updateAuthUI();
+    }
+
+    function updateAuthUI() {
+      const emailEl = document.getElementById('headerUserEmail');
+      const dotEl = document.getElementById('headerSyncDot');
+      const statusEl = document.getElementById('syncStatusMsg');
+
+      if (db.auth && db.auth.email) {
+        emailEl.textContent = db.auth.email;
+        document.getElementById('loginEmail').value = db.auth.email;
+        dotEl.classList.add('online');
+        statusEl.textContent = `Logged in as ${db.auth.email}`;
+      } else {
+        emailEl.textContent = 'Guest (Login)';
+        dotEl.classList.remove('online');
+        statusEl.textContent = 'Not logged in (Local Mode)';
+      }
+    }
+
+    // --- DATE NAVIGATION (HEADER & DRAWER) ---
+    function changeActiveDate(val) {
+      if (!val) return;
+      activeDate = val;
+      document.getElementById('activeDatePicker').value = activeDate;
+
+      const today = getLocalISODate(new Date());
+      const formatted = new Date(activeDate + 'T00:00:00').toLocaleDateString('en-US', { day: '2-digit', month: 'short', year: 'numeric' });
+      const displayLabel = (activeDate === today) ? `Today (${formatted})` : formatted;
+
+      document.getElementById('headerActiveDateText').textContent = (activeDate === today) ? 'Today' : formatted;
+      document.getElementById('loggerActiveDateBadge').textContent = displayLabel;
+      document.getElementById('pinnedDateTitle').textContent = displayLabel;
+      renderAll();
+    }
+
+    function shiftActiveDate(days) {
+      const d = new Date(activeDate + 'T00:00:00');
+      d.setDate(d.getDate() + days);
+      changeActiveDate(getLocalISODate(d));
+    }
+
+    function setTodayDate() {
+      changeActiveDate(getLocalISODate(new Date()));
+    }
+
+    function toggleDrawer(open) {
+      const el = document.getElementById('drawerOverlay');
+      if (open) el.classList.add('open');
+      else el.classList.remove('open');
+    }
+
+    // --- LOGGER CATEGORY & TIMER ---
+    function handleLoggerCategoryChange() {
+      const mainCat = document.getElementById('mainCategory').value;
+      const isStudy = (mainCat === 'Video Class / Lecture' || mainCat === 'Self Study & Practice');
+      document.getElementById('loggerSubcatWrapper').style.display = isStudy ? 'block' : 'none';
+      document.getElementById('generalNoteWrapper').style.display = isStudy ? 'none' : 'block';
+    }
+
+    function toggleTimer() {
+      const btn = document.getElementById('startPauseBtn');
+      if (!timerRunning) {
+        timerRunning = true;
+        btn.textContent = '⏸ Pause';
+        timerInterval = setInterval(() => {
+          timerSeconds++;
+          document.getElementById('timerDisplay').textContent = formatSecondsHMS(timerSeconds);
+        }, 1000);
+      } else {
+        timerRunning = false;
+        btn.textContent = '▶ Resume';
+        clearInterval(timerInterval);
+      }
+    }
+
+    function resetTimer() {
+      clearInterval(timerInterval);
+      timerRunning = false;
+      timerSeconds = 0;
+      document.getElementById('startPauseBtn').textContent = '▶ Start';
+      document.getElementById('timerDisplay').textContent = '00:00:00';
+    }
+
+    function saveTimerSession() {
+      if (timerSeconds < 10) {
+        alert('Please run the timer for at least 10 seconds or log time manually below.');
+        return;
+      }
+      const mins = Math.max(1, Math.round(timerSeconds / 60));
+      recordActivity(mins);
+      resetTimer();
+    }
+
+    function quickLogMinutes(mins) {
+      recordActivity(mins);
+    }
+
+    function addManualEntry() {
+      const h = parseInt(document.getElementById('manualHours').value) || 0;
+      const m = parseInt(document.getElementById('manualMins').value) || 0;
+      const totalMins = (h * 60) + m;
+      if (totalMins <= 0) {
+        alert('Please enter valid Hours or Minutes.');
+        return;
+      }
+      recordActivity(totalMins);
+      document.getElementById('manualHours').value = '';
+      document.getElementById('manualMins').value = '';
+    }
+
+    function recordActivity(minutes) {
+      const mainCategory = document.getElementById('mainCategory').value;
+      const isStudy = (mainCategory === 'Video Class / Lecture' || mainCategory === 'Self Study & Practice');
+      const subCategory = isStudy ? document.getElementById('subCategory').value : mainCategory;
+      const note = isStudy
+        ? document.getElementById('classNote').value.trim()
+        : document.getElementById('generalNote').value.trim();
+
+      db.logs.unshift({
+        id: Date.now(),
+        date: activeDate,
+        mainCategory,
+        subCategory,
+        note: note || (isStudy ? 'Study Session' : mainCategory),
+        minutes,
+        isStudy
+      });
+
+      document.getElementById('classNote').value = '';
+      document.getElementById('generalNote').value = '';
+      saveDB();
+    }
+
+    function deleteLog(id) {
+      db.logs = db.logs.filter(l => l.id !== id);
+      if (!db.deletedIds.includes(id)) db.deletedIds.push(id);
+      saveDB();
+    }
+
+    // --- STRUCTURED TO-DO PLANNER (MATCHES STUDY LOGGER OPTIONS + TARGET DATE) ---
+    function handleTodoCategoryChange() {
+      const mainCat = document.getElementById('todoMainCategory').value;
+      const isStudy = (mainCat === 'Video Class / Lecture' || mainCat === 'Self Study & Practice');
+      document.getElementById('todoSubcatWrapper').style.display = isStudy ? 'block' : 'none';
+      document.getElementById('todoGeneralNoteWrapper').style.display = isStudy ? 'none' : 'block';
+    }
+
+    function setTodoQuickDate(offsetDays, pillId) {
+      const d = new Date();
+      d.setDate(d.getDate() + offsetDays);
+      document.getElementById('todoTargetDate').value = getLocalISODate(d);
+      document.querySelectorAll('.date-pill').forEach(p => p.classList.remove('active'));
+      if (pillId) document.getElementById(pillId).classList.add('active');
+    }
+
+    function clearTodoPillHighlight() {
+      document.querySelectorAll('.date-pill').forEach(p => p.classList.remove('active'));
+    }
+
+    function addStructuredTodo() {
+      const targetDate = document.getElementById('todoTargetDate').value || activeDate;
+      const mainCategory = document.getElementById('todoMainCategory').value;
+      const isStudy = (mainCategory === 'Video Class / Lecture' || mainCategory === 'Self Study & Practice');
+      const subCategory = isStudy ? document.getElementById('todoSubCategory').value : mainCategory;
+      const note = isStudy
+        ? document.getElementById('todoClassNote').value.trim()
+        : document.getElementById('todoGeneralNote').value.trim();
+
+      if (!note) {
+        alert('Please enter the Class / Lecture Name or Task Target.');
+        return;
+      }
+
+      db.todos.unshift({
+        id: Date.now(),
+        date: targetDate,
+        mainCategory,
+        subCategory,
+        note,
+        isStudy,
+        done: false
+      });
+
+      document.getElementById('todoClassNote').value = '';
+      document.getElementById('todoGeneralNote').value = '';
+      saveDB();
+    }
+
+    function loadTodoIntoLogger(id) {
+      const t = db.todos.find(item => item.id === id);
+      if (!t) return;
+      document.getElementById('mainCategory').value = t.mainCategory;
+      handleLoggerCategoryChange();
+      if (t.isStudy) {
+        document.getElementById('subCategory').value = t.subCategory;
+        document.getElementById('classNote').value = t.note;
+      } else {
+        document.getElementById('generalNote').value = t.note;
+      }
+      document.getElementById('trackerSection').scrollIntoView({ behavior: 'smooth' });
+    }
+
+    function toggleTodo(id) {
+      const item = db.todos.find(t => t.id === id);
+      if (item) item.done = !item.done;
+      saveDB();
+    }
+
+    function deleteTodo(id) {
+      db.todos = db.todos.filter(t => t.id !== id);
+      if (!db.deletedIds.includes(id)) db.deletedIds.push(id);
+      saveDB();
+    }
+
+    function setTodoFilter(mode) {
+      todoFilterMode = mode;
+      renderTodos();
+    }
+
+    // --- RENDER ALL VIEWS ---
+    function renderAll() {
+      renderPinnedTodos();
+      renderTodayLogs();
+      renderTodos();
+      renderAnalytics();
+    }
+
+    function renderPinnedTodos() {
+      const strip = document.getElementById('pinnedTodoStrip');
+      const dayTodos = db.todos.filter(t => t.date === activeDate);
+      const pendingCount = dayTodos.filter(t => !t.done).length;
+      document.getElementById('pinnedCountBadge').textContent = `${pendingCount} Pending`;
+
+      // Daily Study Target Progress
+      const dayStudyMins = db.logs.filter(l => l.date === activeDate && l.isStudy).reduce((a, b) => a + b.minutes, 0);
+      const goalMins = (db.settings.dailyGoalHours || 8) * 60;
+      const pct = Math.min(100, Math.round((dayStudyMins / goalMins) * 100));
+      document.getElementById('dailyGoalText').textContent = `Target (${db.settings.dailyGoalHours || 8}h): ${pct}%`;
+      document.getElementById('dailyGoalFill').style.width = `${pct}%`;
+
+      if (dayTodos.length === 0) {
+        strip.innerHTML = `<div style="font-size:11px; color:var(--muted); padding:4px 0;">No tasks scheduled for this date yet. Add one in the To-Do Planner below!</div>`;
+        return;
+      }
+
+      strip.innerHTML = dayTodos.map(t => `
+        <div class="pinned-chip" style="opacity:${t.done ? '0.55' : '1'}">
+          <div class="pinned-chip-top">
+            <span class="badge">${t.isStudy ? t.subCategory : t.mainCategory}</span>
+            <div style="display:flex; gap:4px;">
+              <button class="btn btn-primary btn-xs" onclick="loadTodoIntoLogger(${t.id})" title="Load into Study Timer">▶ Start</button>
+              <input type="checkbox" ${t.done ? 'checked' : ''} onchange="toggleTodo(${t.id})" title="Mark Completed" />
+            </div>
+          </div>
+          <div style="font-weight:700; color:var(--text); text-decoration:${t.done ? 'line-through' : 'none'};">${t.note}</div>
+          <div style="font-size:10px; color:var(--muted);">${t.mainCategory}</div>
+        </div>
+      `).join('');
+    }
+
+    function renderTodayLogs() {
+      const container = document.getElementById('todayLogList');
+      const q = (document.getElementById('logSearchInput')?.value || '').toLowerCase().trim();
+      let dayLogs = db.logs.filter(l => l.date === activeDate);
+      const totalMins = dayLogs.reduce((acc, l) => acc + l.minutes, 0);
+      document.getElementById('selectedDateTotalLabel').textContent = formatMinsHM(totalMins);
+
+      if (q) {
+        dayLogs = dayLogs.filter(l =>
+          l.note.toLowerCase().includes(q) ||
+          l.subCategory.toLowerCase().includes(q) ||
+          l.mainCategory.toLowerCase().includes(q)
+        );
+      }
+
+      if (dayLogs.length === 0) {
+        container.innerHTML = `<div style="color:var(--muted); font-size:12px; text-align:center; padding:14px;">No sessions logged on this date yet.</div>`;
+        return;
+      }
+
+      container.innerHTML = dayLogs.map(l => `
+        <div class="log-item">
+          <div class="log-meta">
+            <div>
+              <span class="badge">${l.mainCategory}</span>
+              ${l.isStudy ? `<span class="badge badge-sub">${l.subCategory}</span>` : ''}
+            </div>
+            <div style="font-weight:600; color:var(--text); margin-top:2px;">${l.note}</div>
+          </div>
+          <div style="display:flex; align-items:center; gap:8px;">
+            <span style="font-weight:800; color:var(--accent-text); white-space:nowrap;">${formatMinsHM(l.minutes)}</span>
+            <button class="del-btn" onclick="deleteLog(${l.id})">✕</button>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function renderTodos() {
+      const container = document.getElementById('todoList');
+      const tomorrowDate = (() => {
+        const d = new Date();
+        d.setDate(d.getDate() + 1);
+        return getLocalISODate(d);
+      })();
+
+      let filtered = db.todos;
+      if (todoFilterMode === 'activeDate') {
+        filtered = db.todos.filter(t => t.date === activeDate);
+      } else if (todoFilterMode === 'tomorrow') {
+        filtered = db.todos.filter(t => t.date === tomorrowDate);
+      }
+
+      document.getElementById('todoTotalBadge').textContent = `${filtered.length} Tasks`;
+
+      if (filtered.length === 0) {
+        container.innerHTML = `<div style="color:var(--muted); font-size:12px; text-align:center; padding:14px;">No tasks found for this filter.</div>`;
+        return;
+      }
+
+      container.innerHTML = filtered.map(t => `
+        <div class="todo-item">
+          <div class="log-meta" style="flex:1;">
+            <div style="display:flex; gap:4px; flex-wrap:wrap;">
+              <span class="badge badge-date">📅 ${t.date}</span>
+              <span class="badge">${t.mainCategory}</span>
+              ${t.isStudy ? `<span class="badge badge-sub">${t.subCategory}</span>` : ''}
+            </div>
+            <label style="display:flex; align-items:center; gap:7px; margin-top:4px; cursor:pointer; color:${t.done ? 'var(--muted)' : 'var(--text)'}; text-decoration:${t.done ? 'line-through' : 'none'}; font-size:12px; font-weight:600;">
+              <input type="checkbox" ${t.done ? 'checked' : ''} onchange="toggleTodo(${t.id})" />
+              ${t.note}
+            </label>
+          </div>
+          <div style="display:flex; align-items:center; gap:5px;">
+            <button class="btn btn-primary btn-xs" onclick="loadTodoIntoLogger(${t.id})">▶ Start</button>
+            <button class="del-btn" onclick="deleteTodo(${t.id})">✕</button>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    // --- DEEP ANALYTICS (SELECTED DAY, 7 DAYS, 30 DAYS) ---
+    function setAnalyticsPeriod(period, btnEl) {
+      currentAnalyticsPeriod = period;
+      document.querySelectorAll('.period-tab').forEach(b => b.classList.remove('active'));
+      btnEl.classList.add('active');
+
+      const labelMap = { day: 'Selected Day', week: 'Weekly (7 Days)', month: 'Monthly (30 Days)' };
+      document.getElementById('subcatPeriodBadge').textContent = labelMap[period];
+      document.getElementById('mainCatPeriodBadge').textContent = labelMap[period];
+      renderAnalytics();
+    }
+
+    function getLogsForPeriod(period) {
+      const refDate = new Date(activeDate + 'T00:00:00');
+      return db.logs.filter(log => {
+        if (period === 'day') return log.date === activeDate;
+        const logDate = new Date(log.date + 'T00:00:00');
+        const diffDays = (refDate - logDate) / (1000 * 60 * 60 * 24);
+        if (period === 'week') return diffDays >= 0 && diffDays < 7;
+        if (period === 'month') return diffDays >= 0 && diffDays < 30;
+        return false;
+      });
+    }
+
+    function renderAnalytics() {
+      const dayLogs = getLogsForPeriod('day');
+      const weekLogs = getLogsForPeriod('week');
+      const monthLogs = getLogsForPeriod('month');
+      const periodLogs = getLogsForPeriod(currentAnalyticsPeriod);
+
+      const dayStudy = dayLogs.filter(l => l.isStudy).reduce((a, b) => a + b.minutes, 0);
+      const weekStudy = weekLogs.filter(l => l.isStudy).reduce((a, b) => a + b.minutes, 0);
+      const monthStudy = monthLogs.filter(l => l.isStudy).reduce((a, b) => a + b.minutes, 0);
+      const periodSleep = periodLogs.filter(l => l.mainCategory === 'Sleep').reduce((a, b) => a + b.minutes, 0);
+
+      document.getElementById('sumStudyDay').textContent = formatMinsHM(dayStudy);
+      document.getElementById('sumStudyWeek').textContent = formatMinsHM(weekStudy);
+      document.getElementById('sumStudyMonth').textContent = formatMinsHM(monthStudy);
+      document.getElementById('sumSleepPeriod').textContent = formatMinsHM(periodSleep);
+
+      // 1. Sub-Category Totals
+      const subCatTotals = {};
+      [...DEFAULT_SUBCATS, ...(db.customSubcats || [])].forEach(sc => subCatTotals[sc] = 0);
+      periodLogs.filter(l => l.isStudy).forEach(l => {
+        subCatTotals[l.subCategory] = (subCatTotals[l.subCategory] || 0) + l.minutes;
+      });
+
+      // 2. Main Category Totals
+      const mainCatTotals = {
+        'Video Class / Lecture': 0,
+        'Self Study & Practice': 0,
+        'Sleep': 0,
+        'Social Media': 0,
+        'Daily Routine / Other': 0
+      };
+      periodLogs.forEach(l => {
+        mainCatTotals[l.mainCategory] = (mainCatTotals[l.mainCategory] || 0) + l.minutes;
+      });
+
+      renderBarsAndChart('subCategoryBars', 'subCategoryPieChart', subCatTotals, true);
+      renderBarsAndChart('mainCategoryBars', 'mainCategoryPieChart', mainCatTotals, false);
+    }
+
+    function renderBarsAndChart(barsContainerId, canvasId, dataMap, isSubCat) {
+      const entries = Object.entries(dataMap);
+      const total = entries.reduce((acc, [, v]) => acc + v, 0);
+      const barsEl = document.getElementById(barsContainerId);
+
+      barsEl.innerHTML = entries.map(([label, mins], idx) => {
+        const pct = total > 0 ? Math.round((mins / total) * 100) : 0;
+        const color = COLORS[idx % COLORS.length];
+        return `
+          <div class="stat-row">
+            <div class="stat-header">
+              <span>${label}</span>
+              <span style="color:${color};">${formatMinsHM(mins)} (${pct}%)</span>
+            </div>
+            <div class="progress-track">
+              <div class="progress-fill" style="width:${pct}%; background:${color};"></div>
+            </div>
+          </div>
+        `;
+      }).join('');
+
+      const ctx = document.getElementById(canvasId).getContext('2d');
+      const nonZero = entries.filter(([, v]) => v > 0);
+      const chartLabels = nonZero.length ? nonZero.map(([k]) => k) : ['No Logged Data'];
+      const chartValues = nonZero.length ? nonZero.map(([, v]) => v) : [1];
+      const chartColors = nonZero.length ? nonZero.map((_, i) => COLORS[i % COLORS.length]) : ['#64748b'];
+
+      if (isSubCat && subCatChartInstance) subCatChartInstance.destroy();
+      if (!isSubCat && mainCatChartInstance) mainCatChartInstance.destroy();
+
+      const legendTextColor = (db.settings.theme === 'light') ? '#334155' : '#cbd5e1';
+
+      const chart = new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+          labels: chartLabels,
+          datasets: [{
+            data: chartValues,
+            backgroundColor: chartColors,
+            borderWidth: 0
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              position: 'bottom',
+              labels: { color: legendTextColor, font: { size: 11 }, boxWidth: 12 }
+            }
+          },
+          cutout: '60%'
+        }
+      });
+
+      if (isSubCat) subCatChartInstance = chart;
+      else mainCatChartInstance = chart;
+    }
+
+    // --- UTILITIES, DEMO DATA & BACKUP ---
+    function formatSecondsHMS(sec) {
+      const h = String(Math.floor(sec / 3600)).padStart(2, '0');
+      const m = String(Math.floor((sec % 3600) / 60)).padStart(2, '0');
+      const s = String(sec % 60).padStart(2, '0');
+      return `${h}:${m}:${s}`;
+    }
+
+    function formatMinsHM(mins) {
+      const h = Math.floor(mins / 60);
+      const m = mins % 60;
+      return `${h}h ${m}m`;
+    }
+
+    function scrollToSection(id, btn) {
+      document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
+      if (btn) btn.classList.add('active');
+      document.getElementById(id).scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
+    function loadSampleData() {
+      const today = new Date(activeDate + 'T00:00:00');
+      const d0 = getLocalISODate(today);
+      const d1 = getLocalISODate(new Date(today.getTime() + 86400000));
+      const d2 = getLocalISODate(new Date(today.getTime() - 2 * 86400000));
+
+      db.logs = [
+        { id: Date.now() - 100, date: d0, mainCategory: 'Video Class / Lecture', subCategory: 'Reasoning Ability & Puzzle', note: 'Mains Floor & Flat Puzzle Lecture #12', minutes: 110, isStudy: true },
+        { id: Date.now() - 200, date: d0, mainCategory: 'Video Class / Lecture', subCategory: 'Quant & DI (Data Interpretation)', note: 'Arithmetic & Missing DI Lecture #09', minutes: 95, isStudy: true },
+        { id: Date.now() - 300, date: d0, mainCategory: 'Self Study & Practice', subCategory: 'GS / Banking Awareness', note: 'RBI Circulars + Current Affairs Revision', minutes: 65, isStudy: true },
+        { id: Date.now() - 400, date: d0, mainCategory: 'Sleep', subCategory: 'Sleep', note: 'Night Sleep', minutes: 430, isStudy: false },
+        { id: Date.now() - 500, date: d0, mainCategory: 'Social Media', subCategory: 'Social Media', note: 'YouTube & Telegram', minutes: 40, isStudy: false },
+        { id: Date.now() - 600, date: d2, mainCategory: 'Self Study & Practice', subCategory: 'Reasoning Ability & Puzzle', note: 'Linear Seating Arrangement 5 Sets', minutes: 140, isStudy: true }
+      ];
+
+      db.todos = [
+        { id: Date.now() - 50, date: d0, mainCategory: 'Video Class / Lecture', subCategory: 'Reasoning Ability & Puzzle', note: 'Complete Syllogism + Coded Inequality Lecture', isStudy: true, done: false },
+        { id: Date.now() - 60, date: d0, mainCategory: 'Self Study & Practice', subCategory: 'Quant & DI (Data Interpretation)', note: 'Solve 4 Mains Level Caselet DI Sets', isStudy: true, done: false },
+        { id: Date.now() - 70, date: d1, mainCategory: 'Video Class / Lecture', subCategory: 'GS / Banking Awareness', note: 'Weekly Banking Awareness Live Class', isStudy: true, done: false }
+      ];
+
+      saveDB();
+      toggleDrawer(false);
+    }
+
+    function exportData() {
+      const blob = new Blob([JSON.stringify(db, null, 2)], { type: 'application/json' });
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = `banking-study-tracker-${activeDate}.json`;
+      a.click();
+    }
+
+    function importData(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        try {
+          const imported = JSON.parse(e.target.result);
+          if (imported.logs && imported.todos) {
+            db.logs = imported.logs;
+            db.todos = imported.todos;
+            db.customSubcats = imported.customSubcats || [];
+            populateSubcatDropdowns();
+            saveDB();
+            alert('Backup imported successfully!');
+          }
+        } catch (err) {
+          alert('Invalid backup file.');
+        }
+      };
+      reader.readAsText(file);
+    }
+  </script>
+</body>
+</html>
