@@ -1,8 +1,20 @@
 {
-"name": "ASB Pro Banking Study Tracker",
-"short_name": "Study Tracker",
-"start_url": ".",
-"display": "standalone",
-"background_color": "#ffffff",
-"theme_color": "#000000"
+  "name": "ASB Pro Banking Study Tracker",
+  "short_name": "ASB Tracker",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#0b1120",
+  "theme_color": "#0b1120",
+  "icons": [
+    {
+      "src": "1000431805.jpg",
+      "sizes": "192x192",
+      "type": "image/jpeg"
+    },
+    {
+      "src": "1000431805.jpg",
+      "sizes": "512x512",
+      "type": "image/jpeg"
+    }
+  ]
 }
